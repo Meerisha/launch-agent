@@ -1,0 +1,41 @@
+{
+  "name": "launch-pilot-ai-consultant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LaunchPilot - AI Launch Consultant that turns ideas into revenue-generating products and courses",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "setup": "./scripts/setup.sh",
+    "test:sse": "node scripts/test-client.mjs http://localhost:3000",
+    "test:http": "node scripts/test-streamable-http-client.mjs http://localhost:3000",
+    "test:launchpilot": "node scripts/test-launchpilot-tool.mjs http://localhost:3000",
+    "generate:cursor-link": "node scripts/generate-cursor-deeplink.mjs"
+  },
+  "dependencies": {
+    "@mendable/firecrawl-js": "^1.29.1",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@types/react-dom": "^19.1.6",
+    "@upstash/redis": "^1.35.0",
+    "@vercel/mcp-adapter": "0.8.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "next": "15.2.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "redis": "^4.7.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19.1.8",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@8.15.7+sha512.c85cd21b6da10332156b1ca2aa79c0a61ee7ad2eb0453b88ab299289e9e8ca93e6091232b25c07cbf61f6df77128d9c849e5c9ac6e44854dbd211c49f3a67adc"
+} 

@@ -15,6 +15,10 @@ export default function LaunchPilotHomePage() {
     constraints: ''
   })
 
+  const [isLoading, setIsLoading] = useState(false)
+  const [results, setResults] = useState<any>(null)
+  const [error, setError] = useState<string>('')
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -22,10 +26,37 @@ export default function LaunchPilotHomePage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    // TODO: Connect to MCP tools
+    setIsLoading(true)
+    setError('')
+    
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze project')
+      }
+
+      const data = await response.json()
+      setResults(data)
+      
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -265,17 +296,222 @@ export default function LaunchPilotHomePage() {
             <div className="text-center pt-6">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold py-4 px-12 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                disabled={isLoading}
+                className={`${
+                  isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 transform hover:-translate-y-0.5'
+                } text-white font-semibold py-4 px-12 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200`}
               >
-                Generate Launch Strategy
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing...
+                  </span>
+                ) : (
+                  'Generate Launch Strategy'
+                )}
               </button>
               <p className="text-sm text-slate-500 mt-4">
                 Your strategy will be generated using our AI-powered analysis tools
               </p>
+              
+              {/* Error Message */}
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                  {error}
+                </div>
+              )}
             </div>
           </form>
         </div>
       </section>
+
+      {/* Results Section */}
+      {results && (
+        <section id="results" className="py-16 px-4 bg-slate-50">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                Your Launch Strategy for {results.projectName}
+              </h2>
+              <p className="text-lg text-slate-600">
+                Generated on {new Date(results.generatedAt).toLocaleDateString()}
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Project Analysis */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Project Analysis</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Market Viability</h4>
+                    <p className="text-sm text-slate-600 mb-2">
+                      Score: <span className="font-medium">{results.analysis.projectAnalysis.analysis.marketViability.score}</span>
+                    </p>
+                    <p className="text-sm text-slate-600">{results.analysis.projectAnalysis.analysis.marketViability.reasoning}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Recommended Approach</h4>
+                    <p className="text-sm text-slate-600">{results.analysis.projectAnalysis.analysis.recommendedApproach}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Next Steps</h4>
+                    <ul className="text-sm text-slate-600 space-y-1">
+                      {results.analysis.projectAnalysis.nextSteps.map((step: any, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="font-medium text-blue-600 mr-2">{step.priority}.</span>
+                          <div>
+                            <span className="font-medium">{step.action}</span>
+                            <span className="text-slate-500 ml-2">({step.timeline})</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Revenue Projections */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-2xl">📊</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Revenue Projections</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Revenue Summary</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 bg-slate-50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">
+                          ${results.analysis.revenueProjections.summary.totalRevenue.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-slate-600">Total Revenue</div>
+                      </div>
+                      <div className="text-center p-3 bg-slate-50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">
+                          ${results.analysis.revenueProjections.summary.monthlyAverage.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-slate-600">Monthly Average</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Break-even Analysis</h4>
+                    <p className="text-sm text-slate-600">
+                      Break-even: <span className="font-medium">{results.analysis.revenueProjections.breakEvenAnalysis.breakEvenUnits} units</span>
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      Time to break-even: <span className="font-medium">{results.analysis.revenueProjections.breakEvenAnalysis.timeToBreakEven} months</span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Scenario Analysis</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600">Conservative:</span>
+                        <span className="font-medium">${results.analysis.revenueProjections.scenarioAnalysis.conservative.revenue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600">Realistic:</span>
+                        <span className="font-medium">${results.analysis.revenueProjections.scenarioAnalysis.realistic.revenue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-600">Optimistic:</span>
+                        <span className="font-medium">${results.analysis.revenueProjections.scenarioAnalysis.optimistic.revenue.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Launch Strategy */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-2xl">🗺️</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Launch Strategy</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Timeline</h4>
+                    <div className="space-y-2">
+                      {results.analysis.launchStrategy.timeline.phases.map((phase: any, index: number) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">{phase.phase}:</span>
+                          <span className="font-medium">{phase.duration} weeks</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Budget Allocation</h4>
+                    <div className="space-y-2">
+                      {Object.entries(results.analysis.launchStrategy.budgetAllocation.breakdown).map(([category, amount]: [string, any]) => (
+                        <div key={category} className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600 capitalize">{category}:</span>
+                          <span className="font-medium">${amount.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Key Tactics</h4>
+                    <ul className="text-sm text-slate-600 space-y-1">
+                      {results.analysis.launchStrategy.strategy.tactics.slice(0, 3).map((tactic: any, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                          <span>{tactic.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Download/Share Actions */}
+            <div className="text-center mt-12">
+              <button
+                onClick={() => window.print()}
+                className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 mr-4"
+              >
+                Download Report
+              </button>
+              <button
+                onClick={() => {
+                  setResults(null)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+                className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Analyze Another Project
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-12 px-4">

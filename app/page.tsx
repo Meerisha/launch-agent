@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from 'react'
+import ShareButtons from './components/ShareButtons'
 
 export default function LaunchPilotHomePage() {
   const [formData, setFormData] = useState({
@@ -491,13 +492,21 @@ export default function LaunchPilotHomePage() {
               </div>
             </div>
 
-            {/* Download/Share Actions */}
-            <div className="text-center mt-12">
+            {/* Share and Export Section */}
+            <div className="mt-12 bg-white rounded-xl p-8 shadow-lg">
+              <ShareButtons 
+                projectName={results.projectName}
+                results={results}
+              />
+            </div>
+
+            {/* Additional Actions */}
+            <div className="text-center mt-8">
               <button
                 onClick={() => window.print()}
                 className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 mr-4"
               >
-                Download Report
+                Print Report
               </button>
               <button
                 onClick={() => {

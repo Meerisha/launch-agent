@@ -5,11 +5,9 @@ import React, { useState, useEffect } from 'react'
 interface ShareButtonsProps {
   projectName: string
   results: any
-  onEmailExport: () => void
-  onPDFExport: () => void
 }
 
-export default function ShareButtons({ projectName, results, onEmailExport, onPDFExport }: ShareButtonsProps) {
+export default function ShareButtons({ projectName, results }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const [hasNativeShare, setHasNativeShare] = useState(false)
@@ -106,6 +104,58 @@ Try it yourself:`
     }
   }
 
+  // PDF Export
+  const handlePDFExport = async () => {
+    try {
+      const response = await fetch('/api/export/pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(results)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `LaunchStrategy_${projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('PDF export failed:', error)
+      alert('Failed to generate PDF. Please try again.')
+    }
+  }
+
+  // Email Export
+  const handleEmailExport = () => {
+    const subject = encodeURIComponent(`Launch Strategy Report - ${projectName}`)
+    const body = encodeURIComponent(`Hi,
+
+I've generated a comprehensive launch strategy for my project "${projectName}" using LaunchPilot AI.
+
+Here are the key highlights:
+• Total Revenue Goal: $${results.analysis.revenueProjections.summary.totalRevenue.toLocaleString()}
+• Monthly Average: $${results.analysis.revenueProjections.summary.monthlyAverage.toLocaleString()}
+• Market Viability Score: ${results.analysis.projectAnalysis.analysis.marketViability.score}
+
+Recommended Approach: ${results.analysis.projectAnalysis.analysis.recommendedApproach}
+
+You can generate your own launch strategy at: ${typeof window !== 'undefined' ? window.location.origin : ''}
+
+Best regards`)
+    
+    const mailtoUrl = `mailto:?subject=${subject}&body=${body}`
+    window.open(mailtoUrl)
+  }
+
   return (
     <div className="space-y-4">
       <div className="text-center">
@@ -198,7 +248,7 @@ Try it yourself:`
         {/* Export Options */}
         <div className="flex justify-center gap-3">
           <button
-            onClick={onPDFExport}
+            onClick={handlePDFExport}
             className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -208,7 +258,7 @@ Try it yourself:`
           </button>
           
           <button
-            onClick={onEmailExport}
+            onClick={handleEmailExport}
             className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">

@@ -96,31 +96,42 @@ export default function LaunchPilotHomePage() {
           </p>
           
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-16">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <span className="text-2xl">🎯</span>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Market Analysis</h3>
-              <p className="text-sm text-slate-600">Comprehensive viability assessment and competitive landscape analysis</p>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative">
+            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+              NEW!
             </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <span className="text-2xl">📊</span>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Revenue Forecasting</h3>
-              <p className="text-sm text-slate-600">Detailed financial projections with break-even analysis and scenario planning</p>
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <span className="text-2xl">📊</span>
             </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <span className="text-2xl">🗺️</span>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Launch Strategy</h3>
-              <p className="text-sm text-slate-600">Custom go-to-market roadmap with timeline and budget allocation</p>
-            </div>
+            <h3 className="font-semibold text-slate-900 mb-2">Real-time Market Intelligence</h3>
+            <p className="text-sm text-slate-600">Live market data, competitor analysis, and trend insights powered by AI</p>
           </div>
+            
+                      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-2">Market Analysis</h3>
+            <p className="text-sm text-slate-600">AI-powered viability assessment and competitive landscape analysis</p>
+          </div>
+            
+                      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <span className="text-2xl">💰</span>
+            </div>
+                        <h3 className="font-semibold text-slate-900 mb-2">Revenue Forecasting</h3>
+            <p className="text-sm text-slate-600">Detailed financial projections with break-even analysis and scenario planning</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <span className="text-2xl">🗺️</span>
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-2">Launch Strategy</h3>
+            <p className="text-sm text-slate-600">Custom go-to-market roadmap with timeline and budget allocation</p>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -317,7 +328,7 @@ export default function LaunchPilotHomePage() {
                 )}
               </button>
               <p className="text-sm text-slate-500 mt-4">
-                Your strategy will be generated using our AI-powered analysis tools
+                Your strategy will be generated using AI-powered analysis tools with <span className="font-semibold text-emerald-600">real-time market intelligence</span>
               </p>
               
               {/* Error Message */}
@@ -344,7 +355,41 @@ export default function LaunchPilotHomePage() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8">
+              {/* Market Research - NEW! */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-2xl">📊</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Market Intelligence</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Market Size</h4>
+                    <p className="text-sm text-slate-600">{results.analysis.marketResearch?.marketResearch?.marketSize || 'Analyzing...'}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Key Trends</h4>
+                    <ul className="text-sm text-slate-600 space-y-1">
+                      {(results.analysis.marketResearch?.trendAnalysis?.growingTrends || ['No trends available']).slice(0, 3).map((trend: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                          <span>{trend}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-700 mb-2">Competitors</h4>
+                    <p className="text-sm text-slate-600">{results.analysis.marketResearch?.competitorAnalysis?.directCompetitors?.[0] || 'No competitors found'}</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Project Analysis */}
               <div className="bg-white rounded-xl p-6 shadow-lg">
                 <div className="flex items-center mb-4">

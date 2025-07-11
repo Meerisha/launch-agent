@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot, User, Loader2, Sparkles, TrendingUp, DollarSign, Target } from 'lucide-react'
+import { Send, Bot, User, Loader2, Sparkles, TrendingUp, DollarSign, Target, Search } from 'lucide-react'
 
 interface Message {
   id: string
@@ -209,6 +209,13 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
           >
             <TrendingUp className="w-4 h-4" />
             Market Research
+          </button>
+          <button 
+            onClick={() => setInputValue("Analyze my competitors and market intelligence")}
+            className="flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm hover:bg-orange-200 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            Competitive Intelligence
           </button>
         </div>
       </div>

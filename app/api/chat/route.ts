@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { projectIntakeTool } from '../../../tools/project-intake';
 import { revenueCalculatorTool } from '../../../tools/revenue-calculator';
 import { launchStrategyTool } from '../../../tools/launch-strategy';
+import { competitiveIntelligence } from '../../../tools/competitive-intelligence';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -23,6 +24,7 @@ interface ProjectContext {
   targetAudience?: string;
   launchGoal?: string;
   budget?: number;
+  industry?: string;
   hasGeneratedAnalysis?: boolean;
 }
 
@@ -40,11 +42,12 @@ export async function POST(request: NextRequest) {
     // Extract project context from conversation
     const projectContext: ProjectContext = extractProjectContext(conversationHistory, context);
     
-    // Determine if user wants a full analysis
+    // Determine if user wants a full analysis or competitive intelligence
     const wantsAnalysis = shouldGenerateAnalysis(message, conversationHistory);
+    const wantsCompetitiveIntelligence = shouldGenerateCompetitiveIntelligence(message);
     
     // Create system prompt based on context
-    const systemPrompt = createSystemPrompt(projectContext, wantsAnalysis);
+    const systemPrompt = createSystemPrompt(projectContext, wantsAnalysis, wantsCompetitiveIntelligence);
     
     // Get AI response
     const response = await openai.chat.completions.create({
@@ -70,6 +73,18 @@ export async function POST(request: NextRequest) {
         updatedContext.hasGeneratedAnalysis = true;
       } catch (error) {
         console.error('Analysis generation error:', error);
+      }
+    }
+    
+    // If user wants competitive intelligence and we have enough info, generate it
+    if (wantsCompetitiveIntelligence && hasEnoughInfoForCompetitiveIntelligence(projectContext)) {
+      try {
+        const competitiveIntelligenceResult = await generateCompetitiveIntelligence(projectContext);
+        analysisResult = analysisResult ? 
+          { ...analysisResult, competitiveIntelligence: competitiveIntelligenceResult } :
+          { competitiveIntelligence: competitiveIntelligenceResult };
+      } catch (error) {
+        console.error('Competitive intelligence generation error:', error);
       }
     }
 
@@ -134,6 +149,20 @@ function extractProjectContext(history: ConversationMessage[], existingContext: 
     context.budget = parseInt(budgetMatch[1].replace(/,/g, ''));
   }
   
+  // Extract industry mentions
+  const industryPatterns = [
+    /(?:in|for|within) the ([^,.\n]*(?:tech|fintech|healthtech|edtech|saas|ecommerce|retail|finance|health|education|ai|blockchain|crypto|gaming)) (?:industry|sector|market|space)/i,
+    /(?:^|[^a-z])([^,.\n]*(?:tech|fintech|healthtech|edtech|saas|ecommerce|retail|finance|health|education|ai|blockchain|crypto|gaming)) (?:startup|company|business|platform|app)/i
+  ];
+  
+  for (const pattern of industryPatterns) {
+    const match = conversationText.match(pattern);
+    if (match && !context.industry) {
+      context.industry = match[1].trim();
+      break;
+    }
+  }
+  
   return context;
 }
 
@@ -141,7 +170,9 @@ function shouldGenerateAnalysis(message: string, history: ConversationMessage[])
   const analysisKeywords = [
     'analyze', 'analysis', 'complete analysis', 'full analysis',
     'revenue projections', 'launch strategy', 'market research',
-    'business plan', 'feasibility', 'breakdown', 'detailed report'
+    'business plan', 'feasibility', 'breakdown', 'detailed report',
+    'competitive intelligence', 'competitor analysis', 'market intelligence',
+    'competitors', 'competition', 'funding landscape'
   ];
   
   const messageText = message.toLowerCase();
@@ -152,7 +183,22 @@ function hasEnoughInfoForAnalysis(context: ProjectContext): boolean {
   return !!(context.projectName && (context.elevatorPitch || context.targetAudience));
 }
 
-function createSystemPrompt(context: ProjectContext, wantsAnalysis: boolean): string {
+function shouldGenerateCompetitiveIntelligence(message: string): boolean {
+  const competitiveKeywords = [
+    'competitive intelligence', 'competitor analysis', 'market intelligence',
+    'competitors', 'competition', 'funding landscape', 'market trends',
+    'competitor research', 'industry analysis'
+  ];
+  
+  const messageText = message.toLowerCase();
+  return competitiveKeywords.some(keyword => messageText.includes(keyword));
+}
+
+function hasEnoughInfoForCompetitiveIntelligence(context: ProjectContext): boolean {
+  return !!(context.projectName && context.industry);
+}
+
+function createSystemPrompt(context: ProjectContext, wantsAnalysis: boolean, wantsCompetitiveIntelligence: boolean = false): string {
   let prompt = `You are LaunchPilot AI, an expert business launch consultant. You help entrepreneurs analyze their project ideas, create revenue projections, and develop launch strategies.
 
 Key traits:
@@ -173,13 +219,20 @@ Current conversation context:`;
   if (context.budget) {
     prompt += `\n- Budget: $${context.budget.toLocaleString()}`;
   }
+  if (context.industry) {
+    prompt += `\n- Industry: ${context.industry}`;
+  }
 
-  if (wantsAnalysis && hasEnoughInfoForAnalysis(context)) {
+  if (wantsCompetitiveIntelligence && hasEnoughInfoForCompetitiveIntelligence(context)) {
+    prompt += `\n\nThe user wants competitive intelligence analysis. I will generate comprehensive competitor analysis, market trends, funding landscape, and strategic opportunities using advanced tools. Mention that you're generating competitive intelligence analysis and it will appear below the chat.`;
+  } else if (wantsCompetitiveIntelligence) {
+    prompt += `\n\nThe user wants competitive intelligence but I need more information. Ask for the missing details: project name and industry are required for competitive analysis.`;
+  } else if (wantsAnalysis && hasEnoughInfoForAnalysis(context)) {
     prompt += `\n\nThe user wants a complete analysis. I will generate detailed project analysis, revenue projections, and launch strategy using the specialized tools available. Mention that you're generating a comprehensive analysis and it will appear below the chat.`;
   } else if (wantsAnalysis) {
     prompt += `\n\nThe user wants analysis but I need more information. Ask for the missing details needed for a complete analysis: project name/description and target audience are minimum requirements.`;
   } else {
-    prompt += `\n\nHelp the user refine their project idea. Ask relevant follow-up questions about their target market, business model, competition, or implementation approach. If they seem ready for a full analysis, suggest it.`;
+    prompt += `\n\nHelp the user refine their project idea. Ask relevant follow-up questions about their target market, business model, competition, or implementation approach. If they seem ready for a full analysis or competitive intelligence, suggest it.`;
   }
 
   return prompt;
@@ -226,6 +279,28 @@ async function generateFullAnalysis(context: ProjectContext) {
       revenueProjections,
       launchStrategy
     },
+    generatedAt: new Date().toISOString()
+  };
+}
+
+async function generateCompetitiveIntelligence(context: ProjectContext) {
+  const competitiveData = {
+    companyName: context.projectName || 'Unnamed Project',
+    industry: context.industry || 'tech',
+    region: 'US',
+    analysisDepth: 'detailed' as const,
+    includeFinancing: true,
+    includeTrends: true,
+    includeCompetitors: true
+  };
+
+  // Generate competitive intelligence analysis
+  const competitiveIntelligenceResult = await competitiveIntelligence.handler(competitiveData);
+
+  return {
+    companyName: context.projectName,
+    industry: context.industry,
+    analysis: competitiveIntelligenceResult,
     generatedAt: new Date().toISOString()
   };
 }

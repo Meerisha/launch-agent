@@ -1,0 +1,238 @@
+# LaunchPilot AI - Cursor IDE Rules & Guidelines
+
+## Project Context
+- **Project**: LaunchPilot - AI Launch Consultant
+- **Stack**: Next.js 15.2.4, React 19.1.0, TypeScript 5.x, Tailwind CSS 4.x
+- **Architecture**: MCP (Model Context Protocol) tools + API routes
+- **Deployment**: Vercel
+- **Caching**: Upstash Redis
+- **AI APIs**: OpenAI, Tavily, Firecrawl
+
+## Code Quality Standards
+
+### TypeScript Rules
+- ALWAYS use TypeScript for all new files (.ts, .tsx)
+- Use strict type checking - no `any` types unless absolutely necessary
+- Define interfaces for all data structures and API responses
+- Use proper generics for reusable components and functions
+- Export types/interfaces from separate files when shared
+
+### React/Next.js Rules
+- Use App Router exclusively (app/ directory)
+- All components must be either Server Components or explicitly marked with "use client"
+- Use proper imports: `import React from 'react'` for client components
+- Prefer functional components with hooks
+- Use proper error boundaries for client components
+- Always handle loading and error states in API calls
+
+### API Route Standards
+- Use proper HTTP status codes (200, 400, 401, 500, etc.)
+- Always validate input data with Zod schemas
+- Implement proper error handling with try-catch blocks
+- Use NextRequest/NextResponse types
+- Include CORS headers when needed
+- Log errors with context for debugging
+
+### MCP Tool Development
+- Follow the established pattern in tools/ directory
+- Use Zod for input validation schemas
+- Each tool should have a clear name, description, and inputSchema
+- Return structured data with consistent formats
+- Handle errors gracefully with fallback responses
+- Export tools properly from tools/index.ts
+
+### Caching Strategy
+- Use Redis for expensive API calls (Tavily, OpenAI)
+- Cache with appropriate TTL (24 hours for market research)
+- Implement cache-aside pattern with fallbacks
+- Use typed cache functions from lib/redis.ts
+- Clear cache appropriately when data changes
+
+## File Organization
+
+### Directory Structure
+```
+app/
+├── api/          # API routes only
+├── components/   # Reusable UI components
+├── globals.css   # Global styles
+├── layout.tsx    # Root layout
+└── page.tsx      # Page components
+
+lib/
+├── redis.ts      # Redis utilities
+└── utils.ts      # Shared utilities
+
+tools/
+├── index.ts      # Tool exports
+├── project-intake.ts
+├── revenue-calculator.ts
+└── launch-strategy.ts
+```
+
+### Naming Conventions
+- Files: kebab-case for routes, PascalCase for components
+- Functions: camelCase
+- Types/Interfaces: PascalCase
+- Constants: SCREAMING_SNAKE_CASE
+- Components: PascalCase with descriptive names
+
+## Code Style Guidelines
+
+### Import Order
+1. React/Next.js imports
+2. Third-party libraries
+3. Local utilities and types
+4. Relative imports (components, etc.)
+
+### Component Structure
+```typescript
+"use client" // If needed
+
+import React from 'react'
+import { NextApiRequest, NextApiResponse } from 'next'
+
+interface Props {
+  // Define props
+}
+
+export default function ComponentName({ }: Props) {
+  // Component logic
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  )
+}
+```
+
+### Error Handling
+- Always wrap API calls in try-catch blocks
+- Return meaningful error messages
+- Log errors with context
+- Use appropriate HTTP status codes
+- Implement fallback UI for client-side errors
+
+## Performance Guidelines
+
+### Optimization Rules
+- Use React.memo for expensive components
+- Implement proper loading states
+- Cache API responses with Redis
+- Use Next.js Image component for images
+- Minimize bundle size with proper imports
+
+### API Performance
+- Implement request caching with Redis
+- Use proper HTTP caching headers
+- Minimize external API calls
+- Implement request deduplication
+- Use streaming for large responses
+
+## Security Guidelines
+
+### Environment Variables
+- Store API keys in .env.local (already gitignored)
+- Use proper environment variable validation
+- Never expose sensitive data to client-side
+- Use different keys for development/production
+
+### Data Validation
+- Validate all inputs with Zod schemas
+- Sanitize user inputs
+- Use proper CORS configuration
+- Implement rate limiting for public APIs
+- Validate file uploads and sizes
+
+## Development Workflow
+
+### Before Committing
+1. Run `npm run build` to check for build errors
+2. Test all API endpoints
+3. Verify TypeScript compilation
+4. Check for console errors
+5. Test Redis connection
+
+### Testing Strategy
+- Test API routes with scripts/test-*.mjs
+- Verify MCP tool functionality
+- Test caching behavior
+- Validate error handling
+- Check responsive design
+
+## AI Integration Best Practices
+
+### OpenAI Usage
+- Use gpt-4o-mini for cost efficiency
+- Implement proper token limits
+- Cache responses appropriately
+- Handle rate limiting
+- Validate AI responses
+
+### Tavily Integration
+- Use advanced search depth for better results
+- Implement domain filtering for quality
+- Cache market research data
+- Handle API failures gracefully
+- Monitor credit usage
+
+### Firecrawl Integration
+- Use markdown format for consistency
+- Implement proper error handling
+- Cache scraped content
+- Respect rate limits
+- Validate scraped data
+
+## Common Patterns
+
+### API Route Pattern
+```typescript
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json()
+    // Validate with Zod
+    // Process request
+    return NextResponse.json({ success: true, data })
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+```
+
+### Cache Pattern
+```typescript
+// Check cache first
+const cached = await getCachedData(key)
+if (cached) return cached
+
+// Fetch fresh data
+const freshData = await expensiveOperation()
+await setCachedData(key, freshData)
+return freshData
+```
+
+### MCP Tool Pattern
+```typescript
+export const toolName = {
+  name: "tool_name",
+  description: "Clear description",
+  inputSchema: ZodSchema,
+  handler: async (input: z.infer<typeof ZodSchema>) => {
+    // Tool logic
+    return structured_response
+  }
+}
+```
+
+## Remember
+- This is a production application with real users
+- Prioritize performance and user experience
+- Always implement proper error handling
+- Use TypeScript to catch errors early
+- Test thoroughly before deploying
+- Document complex business logic
+- Keep the codebase maintainable and scalable 

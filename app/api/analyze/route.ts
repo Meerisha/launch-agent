@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { projectIntakeTool, revenueCalculatorTool, launchStrategyTool } from '../../../tools';
+import { projectIntakeTool } from '../../../tools/project-intake';
+import { revenueCalculatorTool } from '../../../tools/revenue-calculator';
+import { launchStrategyTool } from '../../../tools/launch-strategy';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,10 +31,10 @@ export async function POST(request: NextRequest) {
       constraints: formData.constraints || 'none'
     });
 
-    // Step 2: Revenue Projections (extract info from form)
+    // Step 2: Revenue Calculations (enhanced with market data)
+    const productType = determineProductType(formData.elevatorPitch);
     const pricePoint = extractPriceFromGoal(formData.launchGoal) || 97;
     const targetCustomers = extractCustomersFromGoal(formData.launchGoal) || 100;
-    const productType = determineProductType(formData.elevatorPitch);
     
     const revenueProjections = await revenueCalculatorTool.handler({
       productType,
@@ -41,8 +43,8 @@ export async function POST(request: NextRequest) {
       timeframe: 3 // 3 months default
     });
 
-    // Step 3: Launch Strategy
-    const launchStrategy = await launchStrategyTool.handler({
+    // Step 3: Launch Strategy (enhanced with market data)
+    const launchStrategyResult = await launchStrategyTool.handler({
       projectType: productType,
       budget: extractBudgetFromSkills(formData.creatorSkills) || 1000,
       timeframe: parseTimeframe(formData.launchWindow) || 8,
@@ -58,18 +60,18 @@ export async function POST(request: NextRequest) {
       analysis: {
         projectAnalysis,
         revenueProjections,
-        launchStrategy,
+        launchStrategy: launchStrategyResult,
         marketResearch // Add real market intelligence
       },
       generatedAt: new Date().toISOString()
     };
 
     return NextResponse.json(result);
-    
+
   } catch (error) {
     console.error('Analysis error:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze project. Please try again.' },
+      { error: 'Failed to analyze project' },
       { status: 500 }
     );
   }
@@ -128,10 +130,9 @@ function parseTimeframe(window: string): number {
   }
 }
 
-// NEW: Real-time market research integration
 async function conductMarketResearch(formData: any) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/api/market-research`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/market-research`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,39 +145,39 @@ async function conductMarketResearch(formData: any) {
     });
 
     if (!response.ok) {
-      throw new Error(`Market research failed: ${response.status}`);
+      throw new Error('Market research API failed');
     }
 
     const data = await response.json();
-    return data.data;
+    return data;
   } catch (error) {
-    console.error('Market research integration failed:', error);
-    // Fallback to basic market research
+    console.error('Market research integration error:', error);
+    
+    // Return fallback data if API fails
     return {
+      success: false,
       marketResearch: {
-        marketSize: 'Market research temporarily unavailable',
-        keyTrends: ['Unable to fetch current trends'],
-        opportunities: ['Real-time market analysis unavailable'],
-        threats: ['Unable to assess current market threats'],
+        marketSize: 'Market research unavailable',
+        growthRate: 'Growth data unavailable',
+        trends: 'Trend analysis unavailable',
+        opportunities: 'Opportunity analysis unavailable',
         sources: []
       },
       competitorAnalysis: {
-        directCompetitors: ['Competitor analysis temporarily unavailable'],
-        priceComparison: 'Pricing data unavailable',
-        featureGaps: ['Unable to analyze competitive gaps'],
-        positioning: 'Market positioning analysis unavailable'
+        competitors: 'Competitor data unavailable',
+        pricingAnalysis: 'Pricing analysis unavailable',
+        featureGaps: 'Feature gap analysis unavailable',
+        positioningAdvice: 'Positioning advice unavailable',
+        sources: []
       },
       trendAnalysis: {
-        growingTrends: ['Trend analysis temporarily unavailable'],
-        decliningTrends: ['Trend analysis temporarily unavailable'],
-        emergingOpportunities: ['Trend analysis temporarily unavailable']
+        emergingTrends: 'Trend data unavailable',
+        technologyDevelopments: 'Technology analysis unavailable',
+        consumerBehavior: 'Consumer behavior analysis unavailable',
+        futureOpportunities: 'Future opportunities unavailable',
+        sources: []
       },
-      insights: {
-        marketViabilityScore: 70,
-        recommendedStrategy: 'Focus on unique value proposition and market differentiation',
-        keyRisks: ['Market uncertainty', 'Competitive pressure', 'Technology changes'],
-        successFactors: ['Strong execution', 'Market timing', 'Customer focus']
-      }
+      generatedAt: new Date().toISOString()
     };
   }
 } 

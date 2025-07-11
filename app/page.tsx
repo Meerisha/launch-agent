@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import ShareButtons from './components/ShareButtons'
+import ChatInterface from './components/ChatInterface'
+import { MessageCircle, FileText, ArrowRight } from 'lucide-react'
 
 export default function LaunchPilotHomePage() {
   const [formData, setFormData] = useState({
@@ -19,6 +21,7 @@ export default function LaunchPilotHomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState<string>('')
+  const [interfaceMode, setInterfaceMode] = useState<'form' | 'chat'>('form')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -58,6 +61,16 @@ export default function LaunchPilotHomePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleChatAnalysis = (analysis: any) => {
+    setResults(analysis)
+    setError('')
+    
+    // Scroll to results
+    setTimeout(() => {
+      document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
   }
 
   return (
@@ -135,11 +148,46 @@ export default function LaunchPilotHomePage() {
         </div>
       </section>
 
+      {/* Interface Toggle */}
+      <section className="py-8 px-4 bg-slate-50">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Choose Your Approach</h2>
+            <p className="text-lg text-slate-600 mb-8">Get your personalized launch strategy through guided form or interactive chat</p>
+            
+            <div className="bg-white rounded-xl shadow-lg p-2 inline-flex border border-slate-200">
+              <button
+                onClick={() => setInterfaceMode('form')}
+                className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  interfaceMode === 'form' 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <FileText className="w-5 h-5" />
+                Form Mode
+              </button>
+              <button
+                onClick={() => setInterfaceMode('chat')}
+                className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  interfaceMode === 'chat' 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chat Mode
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Form Section */}
-      <section className="py-16 px-4 bg-white">
+      <section className={`py-16 px-4 bg-white ${interfaceMode === 'form' ? 'block' : 'hidden'}`}>
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Get Your Launch Strategy</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Project Analysis Form</h2>
             <p className="text-lg text-slate-600">Fill out the form below to receive your personalized analysis</p>
           </div>
 
@@ -339,6 +387,18 @@ export default function LaunchPilotHomePage() {
               )}
             </div>
           </form>
+        </div>
+      </section>
+
+      {/* Chat Interface Section */}
+      <section className={`py-16 px-4 bg-white ${interfaceMode === 'chat' ? 'block' : 'hidden'}`}>
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Interactive AI Assistant</h2>
+            <p className="text-lg text-slate-600">Chat with LaunchPilot AI to get personalized guidance and analysis</p>
+          </div>
+
+          <ChatInterface onAnalysisGenerated={handleChatAnalysis} />
         </div>
       </section>
 

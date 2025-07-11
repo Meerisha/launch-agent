@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* CSS Custom Properties */
 :root {
   --background: hsl(0 0% 100%);

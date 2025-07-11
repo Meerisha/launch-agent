@@ -1,4 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { tavily } from '@tavily/core';
+import OpenAI from 'openai';
+import { 
+  getCachedMarketResearch, 
+  cacheMarketResearch,
+  getCachedCompetitorAnalysis,
+  cacheCompetitorAnalysis,
+  getCachedTrendAnalysis,
+  cacheTrendAnalysis 
+} from '../../../lib/redis';
+
+// Initialize clients
+const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,25 +25,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: Market research with Tavily
-    const marketResearch = await searchMarketIntelligence(projectName, targetAudience);
+    // Check cache first (Redis caching for 24 hours)
+    const [cachedMarketResearch, cachedCompetitorAnalysis, cachedTrendAnalysis] = await Promise.all([
+      getCachedMarketResearch(projectName),
+      getCachedCompetitorAnalysis(projectName),
+      getCachedTrendAnalysis(projectName)
+    ]);
+
+    // If all data is cached, return it
+    if (cachedMarketResearch && cachedCompetitorAnalysis && cachedTrendAnalysis) {
+      console.log('✅ Serving cached market research data for:', projectName);
+      return NextResponse.json({
+        success: true,
+        marketResearch: cachedMarketResearch,
+        competitorAnalysis: cachedCompetitorAnalysis,
+        trendAnalysis: cachedTrendAnalysis,
+        generatedAt: new Date().toISOString(),
+        cached: true
+      });
+    }
+
+    // Step 1: Market research with Tavily (use cache if available)
+    const marketResearch = cachedMarketResearch || await searchMarketIntelligence(projectName, targetAudience);
+    if (!cachedMarketResearch) {
+      await cacheMarketResearch(projectName, marketResearch);
+    }
     
-    // Step 2: Competitive analysis with Firecrawl
-    const competitorAnalysis = await analyzeCompetitors(projectName, elevatorPitch);
+    // Step 2: Competitive analysis with Tavily (use cache if available)
+    const competitorAnalysis = cachedCompetitorAnalysis || await analyzeCompetitors(projectName, elevatorPitch);
+    if (!cachedCompetitorAnalysis) {
+      await cacheCompetitorAnalysis(projectName, competitorAnalysis);
+    }
     
-    // Step 3: Trend analysis
-    const trendAnalysis = await analyzeTrends(projectName, targetAudience);
+    // Step 3: Trend analysis (use cache if available)
+    const trendAnalysis = cachedTrendAnalysis || await analyzeTrends(projectName, targetAudience);
+    if (!cachedTrendAnalysis) {
+      await cacheTrendAnalysis(projectName, trendAnalysis);
+    }
     
     return NextResponse.json({
       success: true,
-      data: {
-        marketResearch,
-        competitorAnalysis,
-        trendAnalysis,
-        insights: generateInsights(marketResearch, competitorAnalysis, trendAnalysis)
-      }
+      marketResearch,
+      competitorAnalysis,
+      trendAnalysis,
+      generatedAt: new Date().toISOString(),
+      cached: false
     });
-    
+
   } catch (error) {
     console.error('Market research error:', error);
     return NextResponse.json(
@@ -40,253 +82,243 @@ export async function POST(request: NextRequest) {
 }
 
 async function searchMarketIntelligence(projectName: string, targetAudience: string) {
-  const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-  
-  if (!TAVILY_API_KEY) {
-    throw new Error('Tavily API key not configured');
-  }
-  
   try {
-    const searchQuery = `${projectName} market size ${targetAudience} industry trends 2024`;
+    const searchQuery = `${projectName} market size trends analysis ${targetAudience} 2024`;
     
-    const response = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TAVILY_API_KEY}`
-      },
-      body: JSON.stringify({
-        query: searchQuery,
-        search_depth: 'advanced',
-        include_answer: true,
-        include_raw_content: false,
-        max_results: 10
-      })
+    const response = await tvly.search(searchQuery, {
+      search_depth: 'advanced',
+      max_results: 8,
+      include_answer: true,
+      include_domains: ['statista.com', 'marketresearch.com', 'grandviewresearch.com', 'ibisworld.com']
     });
-    
-    if (!response.ok) {
-      throw new Error(`Tavily API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
+
+    // Use OpenAI to analyze and summarize the findings
+    const analysis = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a market research analyst. Analyze the provided search results and create a comprehensive market intelligence report focusing on market size, growth rate, key trends, and opportunities.'
+        },
+        {
+          role: 'user',
+          content: `Project: ${projectName}
+Target Audience: ${targetAudience}
+
+Search Results:
+${response.results.map(r => `${r.title}: ${r.content}`).join('\n\n')}
+
+Provide a structured market intelligence summary with:
+1. Market size and growth projections
+2. Key trends affecting this market
+3. Target audience insights
+4. Market opportunities and challenges`
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.3
+    });
+
     return {
-      marketSize: extractMarketSize(data.answer),
-      keyTrends: extractTrends(data.results),
-      opportunities: extractOpportunities(data.results),
-      threats: extractThreats(data.results),
-      sources: data.results.map((r: any) => ({ title: r.title, url: r.url }))
+      marketSize: extractMarketSize(response.results),
+      growthRate: extractGrowthRate(response.results),
+      trends: analysis.choices[0].message.content,
+      opportunities: extractOpportunities(response.results),
+      sources: response.results.map(r => ({ title: r.title, url: r.url }))
     };
-    
   } catch (error) {
-    console.error('Tavily search failed:', error);
-    // Fallback to basic analysis
+    console.error('Market intelligence search error:', error);
     return {
-      marketSize: 'Market research temporarily unavailable',
-      keyTrends: ['Unable to fetch current trends'],
-      opportunities: ['Market research service unavailable'],
-      threats: ['Unable to assess current threats'],
+      marketSize: 'Market size data unavailable',
+      growthRate: 'Growth rate data unavailable', 
+      trends: 'Market trends analysis unavailable',
+      opportunities: 'Market opportunities analysis unavailable',
       sources: []
     };
   }
 }
 
 async function analyzeCompetitors(projectName: string, elevatorPitch: string) {
-  const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
-  
-  if (!FIRECRAWL_API_KEY) {
-    throw new Error('Firecrawl API key not configured');
-  }
-  
   try {
-    // Search for competitors
-    const competitorKeywords = extractKeywords(elevatorPitch);
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(competitorKeywords.join(' ') + ' competitors alternatives')}`;
+    const searchQuery = `"${projectName}" competitors alternative similar products pricing features`;
     
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${FIRECRAWL_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        url: searchUrl,
-        formats: ['markdown'],
-        onlyMainContent: true
-      })
+    const response = await tvly.search(searchQuery, {
+      search_depth: 'advanced',
+      max_results: 10,
+      include_answer: true,
+      exclude_domains: ['wikipedia.org', 'reddit.com']
     });
-    
-    if (!response.ok) {
-      throw new Error(`Firecrawl API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
+
+    const analysis = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a competitive intelligence analyst. Analyze competitors and provide strategic insights for market positioning.'
+        },
+        {
+          role: 'user',
+          content: `Project: ${projectName}
+Elevator Pitch: ${elevatorPitch}
+
+Competitor Search Results:
+${response.results.map(r => `${r.title}: ${r.content}`).join('\n\n')}
+
+Provide competitive analysis with:
+1. Key competitors identified
+2. Pricing strategies observed
+3. Feature gaps and opportunities
+4. Market positioning recommendations`
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.3
+    });
+
     return {
-      directCompetitors: extractCompetitors(data.data?.markdown || ''),
-      priceComparison: extractPricing(data.data?.markdown || ''),
-      featureGaps: identifyFeatureGaps(data.data?.markdown || '', elevatorPitch),
-      positioning: suggestPositioning(data.data?.markdown || '', projectName)
+      competitors: extractCompetitors(response.results),
+      pricingAnalysis: extractPricing(response.results),
+      featureGaps: analysis.choices[0].message.content,
+      positioningAdvice: extractPositioning(response.results),
+      sources: response.results.map(r => ({ title: r.title, url: r.url }))
     };
-    
   } catch (error) {
-    console.error('Firecrawl analysis failed:', error);
+    console.error('Competitor analysis error:', error);
     return {
-      directCompetitors: ['Competitor analysis temporarily unavailable'],
-      priceComparison: 'Pricing data unavailable',
-      featureGaps: ['Unable to analyze feature gaps'],
-      positioning: 'Positioning analysis unavailable'
+      competitors: 'Competitor data unavailable',
+      pricingAnalysis: 'Pricing analysis unavailable',
+      featureGaps: 'Feature gap analysis unavailable',
+      positioningAdvice: 'Positioning advice unavailable',
+      sources: []
     };
   }
 }
 
 async function analyzeTrends(projectName: string, targetAudience: string) {
-  // Use Tavily for trend analysis
-  const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-  
-  if (!TAVILY_API_KEY) {
-    return {
-      growingTrends: ['Trend analysis unavailable'],
-      decliningTrends: ['Trend analysis unavailable'],
-      emergingOpportunities: ['Trend analysis unavailable']
-    };
-  }
-  
   try {
-    const trendQuery = `${projectName} ${targetAudience} trending 2024 market demand`;
+    const searchQuery = `${projectName} industry trends 2024 2025 ${targetAudience} emerging technology`;
     
-    const response = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TAVILY_API_KEY}`
-      },
-      body: JSON.stringify({
-        query: trendQuery,
-        search_depth: 'basic',
-        include_answer: true,
-        max_results: 5
-      })
+    const response = await tvly.search(searchQuery, {
+      search_depth: 'advanced',
+      max_results: 6,
+      include_answer: true,
+      topic: 'general'
     });
-    
-    if (!response.ok) {
-      throw new Error(`Tavily trend analysis error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
+
+    const analysis = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a trend analyst. Identify and analyze emerging trends relevant to the project and target audience.'
+        },
+        {
+          role: 'user',
+          content: `Project: ${projectName}
+Target Audience: ${targetAudience}
+
+Trend Search Results:
+${response.results.map(r => `${r.title}: ${r.content}`).join('\n\n')}
+
+Provide trend analysis with:
+1. Key emerging trends
+2. Technology developments
+3. Consumer behavior shifts
+4. Future opportunities`
+        }
+      ],
+      max_tokens: 800,
+      temperature: 0.4
+    });
+
     return {
-      growingTrends: extractGrowingTrends(data.results),
-      decliningTrends: extractDecliningTrends(data.results),
-      emergingOpportunities: extractEmergingOpportunities(data.results)
+      emergingTrends: extractTrends(response.results),
+      technologyDevelopments: extractTech(response.results),
+      consumerBehavior: analysis.choices[0].message.content,
+      futureOpportunities: extractFutureOps(response.results),
+      sources: response.results.map(r => ({ title: r.title, url: r.url }))
     };
-    
   } catch (error) {
-    console.error('Trend analysis failed:', error);
+    console.error('Trend analysis error:', error);
     return {
-      growingTrends: ['Trend analysis temporarily unavailable'],
-      decliningTrends: ['Trend analysis temporarily unavailable'],
-      emergingOpportunities: ['Trend analysis temporarily unavailable']
+      emergingTrends: 'Trend data unavailable',
+      technologyDevelopments: 'Technology analysis unavailable',
+      consumerBehavior: 'Consumer behavior analysis unavailable',
+      futureOpportunities: 'Future opportunities unavailable',
+      sources: []
     };
   }
 }
 
-// Helper functions for data extraction
-function extractMarketSize(answer: string): string {
-  const sizePattern = /(\$[\d,]+\s*(billion|million|thousand))|(\d+\s*(billion|million|thousand)\s*\$)/i;
-  const match = answer?.match(sizePattern);
-  return match ? match[0] : 'Market size data not found';
+// Helper functions to extract specific data from search results
+function extractMarketSize(results: any[]): string {
+  const sizeKeywords = ['market size', 'billion', 'million', 'revenue', 'valued at'];
+  const relevantContent = results.find(r => 
+    sizeKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Market size data not found';
 }
 
-function extractTrends(results: any[]): string[] {
-  return results.slice(0, 3).map(r => r.title || 'Trend data unavailable');
+function extractGrowthRate(results: any[]): string {
+  const growthKeywords = ['growth rate', 'CAGR', 'compound annual', 'growing at', 'expected to grow'];
+  const relevantContent = results.find(r => 
+    growthKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Growth rate data not found';
 }
 
-function extractOpportunities(results: any[]): string[] {
-  return results
-    .filter(r => r.content?.includes('opportunity') || r.content?.includes('growing'))
-    .slice(0, 3)
-    .map(r => r.title || 'Opportunity data unavailable');
+function extractOpportunities(results: any[]): string {
+  const opportunityKeywords = ['opportunity', 'potential', 'emerging', 'demand', 'need'];
+  const relevantContent = results.find(r => 
+    opportunityKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Opportunities data not found';
 }
 
-function extractThreats(results: any[]): string[] {
-  return results
-    .filter(r => r.content?.includes('challenge') || r.content?.includes('threat'))
-    .slice(0, 3)
-    .map(r => r.title || 'Threat data unavailable');
+function extractCompetitors(results: any[]): string {
+  const competitorKeywords = ['competitor', 'alternative', 'similar', 'rival', 'versus'];
+  const relevantContent = results.find(r => 
+    competitorKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Competitor data not found';
 }
 
-function extractKeywords(elevatorPitch: string): string[] {
-  const words = elevatorPitch.toLowerCase().split(/\s+/);
-  return words.filter(word => word.length > 4 && !['that', 'this', 'with', 'from', 'they', 'have', 'will', 'their', 'would', 'there', 'could', 'other'].includes(word));
+function extractPricing(results: any[]): string {
+  const pricingKeywords = ['price', 'cost', 'pricing', 'subscription', 'fee', '$'];
+  const relevantContent = results.find(r => 
+    pricingKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Pricing data not found';
 }
 
-function extractCompetitors(markdown: string): string[] {
-  // Basic competitor extraction from markdown
-  const competitorPattern = /(?:competitor|alternative|similar to|like)\s+([A-Z][a-z]+)/gi;
-  const matches = markdown.match(competitorPattern);
-  return matches?.slice(0, 5) || ['No competitors found'];
+function extractPositioning(results: any[]): string {
+  const positioningKeywords = ['position', 'differentiate', 'unique', 'advantage', 'benefit'];
+  const relevantContent = results.find(r => 
+    positioningKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Positioning data not found';
 }
 
-function extractPricing(markdown: string): string {
-  const pricePattern = /\$[\d,]+(?:\.\d{2})?(?:\s*\/\s*\w+)?/g;
-  const prices = markdown.match(pricePattern);
-  return prices ? `Price range: ${prices.slice(0, 3).join(', ')}` : 'No pricing data found';
+function extractTrends(results: any[]): string {
+  const trendKeywords = ['trend', 'emerging', 'future', 'innovation', 'development'];
+  const relevantContent = results.find(r => 
+    trendKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Trend data not found';
 }
 
-function identifyFeatureGaps(markdown: string, elevatorPitch: string): string[] {
-  return ['AI-powered analysis', 'Real-time insights', 'Automated recommendations'];
+function extractTech(results: any[]): string {
+  const techKeywords = ['technology', 'AI', 'machine learning', 'automation', 'digital'];
+  const relevantContent = results.find(r => 
+    techKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Technology data not found';
 }
 
-function suggestPositioning(markdown: string, projectName: string): string {
-  return `${projectName} should position itself as the most comprehensive and AI-driven solution in the market`;
-}
-
-function extractGrowingTrends(results: any[]): string[] {
-  return results
-    .filter(r => r.content?.includes('growing') || r.content?.includes('increasing'))
-    .slice(0, 3)
-    .map(r => r.title || 'Growing trend data unavailable');
-}
-
-function extractDecliningTrends(results: any[]): string[] {
-  return results
-    .filter(r => r.content?.includes('declining') || r.content?.includes('decreasing'))
-    .slice(0, 2)
-    .map(r => r.title || 'Declining trend data unavailable');
-}
-
-function extractEmergingOpportunities(results: any[]): string[] {
-  return results
-    .filter(r => r.content?.includes('emerging') || r.content?.includes('new'))
-    .slice(0, 3)
-    .map(r => r.title || 'Emerging opportunity data unavailable');
-}
-
-function generateInsights(marketResearch: any, competitorAnalysis: any, trendAnalysis: any) {
-  return {
-    marketViabilityScore: calculateViabilityScore(marketResearch, competitorAnalysis),
-    recommendedStrategy: 'Focus on AI-powered differentiation and real-time market intelligence',
-    keyRisks: ['Market saturation', 'Competitive pressure', 'Technology changes'],
-    successFactors: ['Unique value proposition', 'Strong market timing', 'Effective execution']
-  };
-}
-
-function calculateViabilityScore(marketResearch: any, competitorAnalysis: any): number {
-  // Simple scoring algorithm
-  let score = 70; // Base score
-  
-  if (marketResearch.marketSize !== 'Market research temporarily unavailable') {
-    score += 10;
-  }
-  
-  if (marketResearch.opportunities.length > 0) {
-    score += 10;
-  }
-  
-  if (competitorAnalysis.directCompetitors.length < 5) {
-    score += 10;
-  }
-  
-  return Math.min(score, 100);
+function extractFutureOps(results: any[]): string {
+  const futureKeywords = ['future', 'opportunity', 'potential', 'next', 'upcoming'];
+  const relevantContent = results.find(r => 
+    futureKeywords.some(keyword => r.content.toLowerCase().includes(keyword))
+  );
+  return relevantContent?.content.slice(0, 200) + '...' || 'Future opportunities data not found';
 } 

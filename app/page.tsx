@@ -89,6 +89,12 @@ export default function LaunchPilotHomePage() {
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6">
+              <a 
+                href="/dashboard" 
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all font-medium flex items-center gap-2"
+              >
+                📊 Metrics Dashboard
+              </a>
               <span className="text-sm text-slate-600">Powered by MCP</span>
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             </div>
@@ -143,6 +149,17 @@ export default function LaunchPilotHomePage() {
             </div>
             <h3 className="font-semibold text-slate-900 mb-2">Launch Strategy</h3>
             <p className="text-sm text-slate-600">Custom go-to-market roadmap with timeline and budget allocation</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative">
+            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+              LIVE!
+            </div>
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <span className="text-2xl">📈</span>
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-2">Metrics Dashboard</h3>
+            <p className="text-sm text-slate-600">Real-time visualization and scenario modeling with interactive controls</p>
           </div>
         </div>
         </div>

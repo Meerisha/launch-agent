@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import ShareButtons from './components/ShareButtons'
 import ChatInterface from './components/ChatInterface'
+import SampleProjectSelector from './components/SampleProjectSelector'
 import { MessageCircle, FileText, ArrowRight } from 'lucide-react'
 
 export default function LaunchPilotHomePage() {
@@ -22,6 +23,38 @@ export default function LaunchPilotHomePage() {
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState<string>('')
   const [interfaceMode, setInterfaceMode] = useState<'form' | 'chat'>('form')
+  const [showSampleProjects, setShowSampleProjects] = useState(false)
+
+  const handleSampleProjectSelect = (projectData: any) => {
+    setFormData({
+      projectName: projectData.projectName,
+      elevatorPitch: projectData.elevatorPitch,
+      targetAudience: projectData.targetAudience,
+      launchGoal: projectData.launchGoal,
+      riskTolerance: 'medium',
+      launchWindow: 'Q2 2024',
+      creatorSkills: 'Full-stack development, Digital marketing, Team leadership',
+      existingAssets: 'Brand identity, Initial MVP, Landing page',
+      constraints: 'Limited initial budget, Remote team only'
+    })
+    setShowSampleProjects(false)
+    // Set some sample results to show immediate value
+    setResults({
+      projectName: projectData.projectName,
+      analysis: projectData.analysis,
+      recommendations: [
+        'Focus on customer acquisition through content marketing',
+        'Implement freemium model to reduce friction',
+        'Build strong onboarding experience',
+        'Develop strategic partnerships'
+      ],
+      timeline: [
+        { phase: 'MVP Launch', duration: '30 days', status: 'ready' },
+        { phase: 'Market Testing', duration: '45 days', status: 'pending' },
+        { phase: 'Scale & Growth', duration: '90 days', status: 'pending' }
+      ]
+    })
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -162,6 +195,115 @@ export default function LaunchPilotHomePage() {
             <p className="text-sm text-slate-600">Real-time visualization and scenario modeling with interactive controls</p>
           </div>
         </div>
+        </div>
+      </section>
+
+      {/* Sample Projects Section */}
+      <section className="py-12 px-4 bg-gradient-to-r from-blue-50 to-violet-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">🚀 Get Started Instantly</h2>
+            <p className="text-lg text-slate-600 mb-8">Explore sample projects to see LaunchPilot in action</p>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div 
+                onClick={() => handleSampleProjectSelect({
+                  projectName: 'SmartCRM Pro',
+                  companyName: 'TechFlow Solutions',
+                  targetAudience: 'Small to medium businesses (10-100 employees)',
+                  elevatorPitch: 'SmartCRM Pro uses AI to automatically prioritize leads, predict customer churn, and suggest optimal follow-up actions, helping SMBs increase sales by 35%.',
+                  launchGoal: '$50,000 MRR within 120 days with 200 paying customers',
+                  analysis: {
+                    revenueProjections: {
+                      summary: { totalRevenue: 600000, monthlyAverage: 50000, requiredLeads: 2000 },
+                      scenarioAnalysis: {
+                        conservative: { revenue: 400000, customers: 140 },
+                        realistic: { revenue: 600000, customers: 200 },
+                        optimistic: { revenue: 900000, customers: 300 }
+                      }
+                    }
+                  }
+                })}
+                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all cursor-pointer group"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-2xl">💻</span>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">AI-Powered CRM SaaS</h3>
+                <p className="text-sm text-slate-600 mb-4">B2B SaaS platform for small business CRM with AI features</p>
+                <div className="text-center">
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">$50K MRR Goal</span>
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => handleSampleProjectSelect({
+                  projectName: 'Zero-to-Launch Bootcamp',
+                  companyName: 'Launch Academy',
+                  targetAudience: 'Aspiring entrepreneurs aged 25-45 with an idea but no launch experience',
+                  elevatorPitch: 'A comprehensive 8-week bootcamp that takes complete beginners from idea to first sale, with proven frameworks and live coaching.',
+                  launchGoal: '$100,000 revenue in first 90 days with 200 students',
+                  analysis: {
+                    revenueProjections: {
+                      summary: { totalRevenue: 150000, monthlyAverage: 50000, requiredLeads: 5000 },
+                      scenarioAnalysis: {
+                        conservative: { revenue: 100000, students: 150 },
+                        realistic: { revenue: 150000, students: 200 },
+                        optimistic: { revenue: 250000, students: 300 }
+                      }
+                    }
+                  }
+                })}
+                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all cursor-pointer group"
+              >
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-2xl">📚</span>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Online Course Launch</h3>
+                <p className="text-sm text-slate-600 mb-4">Zero-to-Launch Bootcamp for aspiring entrepreneurs</p>
+                <div className="text-center">
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">$100K Revenue Goal</span>
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => handleSampleProjectSelect({
+                  projectName: 'Growth Scale Consulting',
+                  companyName: 'Digital Growth Partners',
+                  targetAudience: 'E-commerce brands doing $100K-$1M annual revenue seeking to scale marketing',
+                  elevatorPitch: 'We help e-commerce brands scale from $100K to $1M+ through data-driven marketing strategies and retention optimization.',
+                  launchGoal: '$25,000 MRR within 60 days with 5 high-value clients',
+                  analysis: {
+                    revenueProjections: {
+                      summary: { totalRevenue: 300000, monthlyAverage: 25000, requiredLeads: 500 },
+                      scenarioAnalysis: {
+                        conservative: { revenue: 180000, clients: 3 },
+                        realistic: { revenue: 300000, clients: 5 },
+                        optimistic: { revenue: 480000, clients: 8 }
+                      }
+                    }
+                  }
+                })}
+                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all cursor-pointer group"
+              >
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Digital Marketing Consulting</h3>
+                <p className="text-sm text-slate-600 mb-4">Specialized consulting for e-commerce brands</p>
+                <div className="text-center">
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">$25K MRR Goal</span>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setShowSampleProjects(true)}
+              className="bg-gradient-to-r from-blue-600 to-violet-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-violet-700 transition-all transform hover:-translate-y-0.5 shadow-lg"
+            >
+              Browse All Sample Projects
+            </button>
+          </div>
         </div>
       </section>
 
@@ -667,6 +809,14 @@ export default function LaunchPilotHomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Sample Project Selector Modal */}
+      {showSampleProjects && (
+        <SampleProjectSelector
+          onClose={() => setShowSampleProjects(false)}
+          onProjectSelect={handleSampleProjectSelect}
+        />
+      )}
     </div>
   )
 } 

@@ -618,7 +618,12 @@ export default function LaunchPilotHomePage() {
             <div className="mt-12 bg-white rounded-xl p-8 shadow-lg">
               <ShareButtons 
                 projectName={results.projectName}
-                results={results}
+                companyName={results.companyName}
+                analysis={results.analysis}
+                onReportGenerated={(reportData) => {
+                  console.log('Report generated:', reportData);
+                  // Could show a success notification here
+                }}
               />
             </div>
 

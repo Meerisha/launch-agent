@@ -26,6 +26,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const [conversationContext, setConversationContext] = useState<any>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -33,6 +34,10 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     scrollToBottom()
@@ -259,7 +264,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
                   </div>
                 )}
                 <div className="text-xs opacity-70 mt-2">
-                  {message.timestamp.toLocaleTimeString()}
+                  {isMounted ? message.timestamp.toLocaleTimeString() : ''}
                 </div>
               </div>
             </div>

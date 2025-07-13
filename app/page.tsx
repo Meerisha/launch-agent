@@ -319,8 +319,8 @@ export default function LaunchPilotHomePage() {
                 onClick={() => setInterfaceMode('form')}
                 className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
                   interfaceMode === 'form' 
-                    ? 'bg-blue-600 text-white shadow-md' 
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-blue-700 text-white shadow-md' 
+                    : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 <FileText className="w-5 h-5" />
@@ -330,8 +330,8 @@ export default function LaunchPilotHomePage() {
                 onClick={() => setInterfaceMode('chat')}
                 className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
                   interfaceMode === 'chat' 
-                    ? 'bg-blue-600 text-white shadow-md' 
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-blue-700 text-white shadow-md' 
+                    : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 <MessageCircle className="w-5 h-5" />

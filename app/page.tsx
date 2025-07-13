@@ -202,8 +202,8 @@ export default function LaunchPilotHomePage() {
       <section className="py-12 px-4 bg-gradient-to-r from-blue-50 to-violet-50">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">🚀 Get Started Instantly</h2>
-            <p className="text-lg text-slate-600 mb-8">Explore sample projects to see LaunchPilot in action</p>
+            <h2 className="text-3xl font-bold text-black mb-4">🚀 Get Started Instantly</h2>
+            <p className="text-lg text-slate-800 mb-8">Explore sample projects to see LaunchPilot in action</p>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div 

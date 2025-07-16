@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react'
 import MetricsDashboard from '../components/MetricsDashboard'
 import ReportGenerator from '../components/ReportGenerator'
-import { FileText, BarChart3, ArrowLeft, Download, Sparkles } from 'lucide-react'
+import EnhancedFinancialCalculator from '../components/EnhancedFinancialCalculator'
+import { FileText, BarChart3, Calculator, ArrowLeft, Download, Sparkles } from 'lucide-react'
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<'metrics' | 'reports'>('metrics')
+  const [activeTab, setActiveTab] = useState<'metrics' | 'reports' | 'calculator'>('metrics')
   const [sampleData, setSampleData] = useState<any>(null)
 
   // Generate sample data for demonstration
@@ -223,6 +224,17 @@ export default function DashboardPage() {
               <FileText className="w-5 h-5" />
               Report Generation
             </button>
+            <button
+              onClick={() => setActiveTab('calculator')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                activeTab === 'calculator' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Calculator className="w-5 h-5" />
+              Financial Calculator
+            </button>
           </div>
 
           {/* Content */}
@@ -287,6 +299,23 @@ export default function DashboardPage() {
                   </a>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'calculator' && (
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-gradient-to-r from-green-600 to-teal-600 p-2 rounded-full">
+                    <Calculator className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Enhanced Financial Calculator</h2>
+                    <p className="text-gray-600">Calculate key financial metrics for your business</p>
+                  </div>
+                </div>
+              </div>
+              <EnhancedFinancialCalculator />
             </div>
           )}
         </div>

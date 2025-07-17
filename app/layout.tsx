@@ -1,26 +1,27 @@
-import type { Metadata } from 'next'
 import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import Providers from './providers'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "LaunchPilot - AI Launch Consultant",
-  description: "Transform your raw idea into a revenue-generating product or course with AI-powered launch consulting",
-  keywords: "AI launch consultant, product launch, course launch, startup strategy, revenue forecasting",
-  authors: [{ name: "LaunchPilot AI" }],
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-};
+  title: 'LaunchPilot - AI Launch Consultant',
+  description: 'Transform your raw idea into a revenue-generating product with AI-powered launch consulting',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className={inter.className}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
-  );
+  )
 } 

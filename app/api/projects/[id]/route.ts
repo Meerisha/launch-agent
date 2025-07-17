@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerAuthSession } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 
-interface RouteContext {
-  params: {
-    id: string
-  }
-}
-
 // GET /api/projects/[id] - Get single project
-export async function GET(request: NextRequest, { params }: RouteContext) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const session = await getServerAuthSession()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -19,7 +17,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     const { data: project, error } = await supabase
       .from('projects')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', session.user.id)
       .single()
 
@@ -38,8 +36,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 }
 
 // PATCH /api/projects/[id] - Update specific fields of a project
-export async function PATCH(request: NextRequest, { params }: RouteContext) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const session = await getServerAuthSession()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -51,7 +53,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const { data: existingProject, error: fetchError } = await supabase
       .from('projects')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (fetchError || !existingProject) {
@@ -65,7 +67,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const { data: project, error } = await supabase
       .from('projects')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -85,8 +87,12 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 }
 
 // DELETE /api/projects/[id] - Delete specific project
-export async function DELETE(request: NextRequest, { params }: RouteContext) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const session = await getServerAuthSession()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -96,7 +102,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     const { data: existingProject, error: fetchError } = await supabase
       .from('projects')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (fetchError || !existingProject) {
@@ -110,7 +116,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     const { error } = await supabase
       .from('projects')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Database error:', error)

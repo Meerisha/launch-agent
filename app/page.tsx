@@ -161,9 +161,10 @@ function LaunchPilotContent() {
 
           {showSampleProjects && (
             <SampleProjectSelector
-              onSelectProject={(project) => {
-                handleSampleProjectSelect(project.data)
+              onProjectSelect={(projectData) => {
+                handleSampleProjectSelect(projectData)
               }}
+              onClose={() => setShowSampleProjects(false)}
             />
           )}
         </div>
@@ -274,7 +275,10 @@ function LaunchPilotContent() {
                 
                 {/* Share Buttons */}
                 <div className="mt-6 pt-6 border-t">
-                  <ShareButtons results={results} />
+                  <ShareButtons 
+                    projectName={formData.projectName || 'Untitled Project'}
+                    analysis={results}
+                  />
                 </div>
               </div>
             )}

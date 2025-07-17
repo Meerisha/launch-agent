@@ -121,7 +121,7 @@ function LaunchPilotContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all ${
                 interfaceMode === 'form'
                   ? 'bg-blue-700 text-white shadow-sm'
-                  : 'text-slate-700 hover:text-gray-900'
+                  : 'text-gray-800 hover:text-gray-900'
               }`}
             >
               <FileText className="inline-block w-5 h-5 mr-2" />
@@ -132,7 +132,7 @@ function LaunchPilotContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all ${
                 interfaceMode === 'chat'
                   ? 'bg-blue-700 text-white shadow-sm'
-                  : 'text-slate-700 hover:text-gray-900'
+                  : 'text-gray-800 hover:text-gray-900'
               }`}
             >
               <MessageCircle className="inline-block w-5 h-5 mr-2" />
@@ -144,10 +144,10 @@ function LaunchPilotContent() {
         {/* Sample Projects Section */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-blue-600 to-violet-600 rounded-2xl p-8 text-white mb-6">
-            <h3 className="text-2xl font-bold text-black mb-2">
+            <h3 className="text-2xl font-bold text-white mb-2">
               🚀 Try Sample Projects
             </h3>
-            <p className="text-slate-800 mb-4">
+            <p className="text-blue-100 mb-4">
               Explore realistic launch scenarios with pre-loaded data and see LaunchPilot in action
             </p>
             <button

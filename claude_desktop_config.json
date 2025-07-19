@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "launch-pilot": {
+      "command": "npx",
+      "args": [
+        "@vercel/mcp-adapter",
+        "start",
+        "--url",
+        "http://localhost:3000/api/mcp"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+} 

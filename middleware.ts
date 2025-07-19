@@ -13,10 +13,17 @@ export default withAuth(
         if (req.nextUrl.pathname.startsWith('/dashboard')) {
           return !!token
         }
-        // Protect API routes (except auth routes)
-        if (req.nextUrl.pathname.startsWith('/api/projects') || 
-            req.nextUrl.pathname.startsWith('/api/chat')) {
+        // Protect project API routes (user data)
+        if (req.nextUrl.pathname.startsWith('/api/projects')) {
           return !!token
+        }
+        // Allow chat API for all users (no auth required)
+        if (req.nextUrl.pathname.startsWith('/api/chat')) {
+          return true
+        }
+        // Allow MCP API for all users (tools can be public)
+        if (req.nextUrl.pathname.startsWith('/api/mcp')) {
+          return true
         }
         return true
       },
@@ -27,7 +34,7 @@ export default withAuth(
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/api/projects/:path*',
-    '/api/chat/:path*'
+    '/api/projects/:path*'
+    // Removed /api/chat and /api/mcp from matcher - they're now public
   ]
 } 

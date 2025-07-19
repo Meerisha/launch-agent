@@ -42,9 +42,21 @@ export async function POST(request: NextRequest) {
     // Extract project context from conversation
     const projectContext: ProjectContext = extractProjectContext(conversationHistory, context);
     
+    // Check if user wants Instagram images - prioritize this
+    const wantsInstagramImages = shouldGenerateInstagramImages(message) || 
+      isInstagramFollowUp(message, conversationHistory);
+    
     // Determine if user wants a full analysis or competitive intelligence
     const wantsAnalysis = shouldGenerateAnalysis(message, conversationHistory);
     const wantsCompetitiveIntelligence = shouldGenerateCompetitiveIntelligence(message);
+    
+    // Handle Instagram image generation with minimal questions
+    if (wantsInstagramImages) {
+      const instagramResult = await handleInstagramImageGeneration(message, projectContext, conversationHistory);
+      if (instagramResult) {
+        return NextResponse.json(instagramResult);
+      }
+    }
     
     // Create system prompt based on context
     const systemPrompt = createSystemPrompt(projectContext, wantsAnalysis, wantsCompetitiveIntelligence);
@@ -315,4 +327,196 @@ function updateContextFromMessage(message: string, context: ProjectContext): Pro
   }
   
   return updated;
+}
+
+// Instagram Image Generation Functions
+function shouldGenerateInstagramImages(message: string): boolean {
+  const instagramKeywords = [
+    'instagram', 'insta', 'ig post', 'social media post', 'image', 'images', 
+    'photo', 'photos', 'visual', 'graphics', 'generate image', 'create image',
+    'post image', 'social image', 'feed image', 'content image'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  return instagramKeywords.some(keyword => lowerMessage.includes(keyword));
+}
+
+function isInstagramFollowUp(message: string, conversationHistory: ConversationMessage[]): boolean {
+  // Check if the last assistant message was asking for project name for Instagram images
+  const lastAssistantMessage = conversationHistory
+    .filter(msg => msg.role === 'assistant')
+    .pop();
+    
+  if (lastAssistantMessage && 
+      lastAssistantMessage.content.includes("Instagram images") && 
+      lastAssistantMessage.content.includes("project/product name")) {
+    
+    // If user provided what looks like a project name (not a question), generate images
+    const lowerMessage = message.toLowerCase();
+    const isQuestion = lowerMessage.includes('?') || 
+                      lowerMessage.startsWith('how') || 
+                      lowerMessage.startsWith('what') || 
+                      lowerMessage.startsWith('when') || 
+                      lowerMessage.startsWith('why');
+    
+    return !isQuestion && message.trim().length > 2;
+  }
+  
+  return false;
+}
+
+async function handleInstagramImageGeneration(
+  message: string, 
+  context: ProjectContext, 
+  conversationHistory: ConversationMessage[]
+): Promise<any | null> {
+  // Extract Instagram-specific parameters from message and context
+  let projectName = context.projectName || extractProjectNameFromMessage(message);
+  
+  // If we're in a follow-up conversation and message looks like a project name, use it directly
+  if (!projectName && isInstagramFollowUp(message, conversationHistory)) {
+    const trimmedMessage = message.trim();
+    // If it's a short response that looks like a project name (not a sentence)
+    if (trimmedMessage.length > 1 && trimmedMessage.length < 50 && !trimmedMessage.includes(' ')) {
+      projectName = trimmedMessage;
+    } else if (trimmedMessage.length < 100 && !trimmedMessage.includes('?')) {
+      projectName = trimmedMessage;
+    }
+  }
+  
+  // Final fallback
+  if (!projectName) {
+    projectName = message.trim().length > 2 ? message.trim() : "My Project";
+  }
+  
+  const targetAudience = context.targetAudience || "potential customers";
+  
+  // Determine content text from message
+  let contentText = extractContentFromMessage(message);
+  if (!contentText) {
+    contentText = context.elevatorPitch || `Discover ${projectName} - innovative solution for modern users`;
+  }
+  
+  // Only ask for project name if we really don't have any project info
+  const hasProjectInfo = context.projectName || 
+                        extractProjectNameFromMessage(message) || 
+                        isInstagramFollowUp(message, conversationHistory) ||
+                        (message.trim().length > 2 && !message.includes('?'));
+  
+  if (!hasProjectInfo) {
+    return {
+      response: "I'd love to create Instagram images for you! What's your project/product name so I can generate branded content?",
+      context: context,
+      analysis: null,
+      generatedAt: new Date().toISOString()
+    };
+  }
+  
+  // Generate images directly with smart defaults
+  try {
+    const instagramParams = {
+      projectName,
+      postType: determinePostType(message),
+      contentText,
+      brandColors: extractBrandColors(message) || "modern blue and white",
+      style: extractStyle(message) || "modern",
+      targetAudience,
+      includeText: true,
+      aspectRatio: "square" as const
+    };
+    
+    // Call the Instagram image generation tool directly
+    const { instagramImageGeneratorTool } = await import('../../../tools/instagram-image-generator');
+    const result = await instagramImageGeneratorTool.handler(instagramParams);
+    
+    return {
+      response: `🎨 Perfect! I've generated professional Instagram images for ${projectName}! Here are your branded posts with captions, hashtags, and posting strategy.`,
+      context: { ...context, projectName: projectName },
+      analysis: {
+        type: 'instagram_images',
+        ...result
+      },
+      generatedAt: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('Instagram generation error:', error);
+    return {
+      response: "I'd love to help create Instagram images! Could you tell me a bit more about your project name and what message you want to convey?",
+      context: context,
+      analysis: null,
+      generatedAt: new Date().toISOString()
+    };
+  }
+}
+
+function extractProjectNameFromMessage(message: string): string | null {
+  // Look for patterns like "for my [project]", "my [project] app", "[project] business", etc.
+  const patterns = [
+    /(?:for my|my)\s+([^,.\s]+(?:\s+(?:app|business|startup|company|product|service|platform|tool))?)/i,
+    /(?:called|named)\s+([^,.\s]+)/i,
+    /([A-Z][a-zA-Z]+(?:App|AI|Pro|Plus|Hub|Lab|Fit|Track|Bot|Tech))/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
+
+function extractContentFromMessage(message: string): string | null {
+  // Extract quoted content or descriptive text
+  const quotedMatch = message.match(/["']([^"']{10,100})["']/);
+  if (quotedMatch) return quotedMatch[1];
+  
+  // Look for descriptive phrases
+  const descPatterns = [
+    /(?:saying|message|text|content|about)[\s:]+([^,.!?]{15,100})/i,
+    /(?:that says|with text)[\s:]+([^,.!?]{15,100})/i
+  ];
+  
+  for (const pattern of descPatterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
+
+function determinePostType(message: string): "product-showcase" | "behind-the-scenes" | "educational" | "testimonial" | "announcement" | "lifestyle" | "quote-post" {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('product') || lowerMessage.includes('showcase')) return 'product-showcase';
+  if (lowerMessage.includes('behind') || lowerMessage.includes('team')) return 'behind-the-scenes';
+  if (lowerMessage.includes('tip') || lowerMessage.includes('how to') || lowerMessage.includes('learn')) return 'educational';
+  if (lowerMessage.includes('testimonial') || lowerMessage.includes('review')) return 'testimonial';
+  if (lowerMessage.includes('announce') || lowerMessage.includes('launch')) return 'announcement';
+  if (lowerMessage.includes('quote') || lowerMessage.includes('inspiration')) return 'quote-post';
+  
+  return 'lifestyle'; // Default to lifestyle
+}
+
+function extractBrandColors(message: string): string | null {
+  const colorPattern = /(?:color[s]?|brand)[\s:]*([a-z]+(?:\s+and\s+[a-z]+)?(?:\s+[a-z]+)?)/i;
+  const match = message.match(colorPattern);
+  return match ? match[1] : null;
+}
+
+function extractStyle(message: string): "minimalist" | "modern" | "corporate" | "playful" | "elegant" | "tech" | "lifestyle" {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('minimal')) return 'minimalist';
+  if (lowerMessage.includes('corporate') || lowerMessage.includes('business')) return 'corporate';
+  if (lowerMessage.includes('fun') || lowerMessage.includes('playful')) return 'playful';
+  if (lowerMessage.includes('elegant') || lowerMessage.includes('luxury')) return 'elegant';
+  if (lowerMessage.includes('tech')) return 'tech';
+  if (lowerMessage.includes('lifestyle')) return 'lifestyle';
+  
+  return 'modern'; // Default
 } 

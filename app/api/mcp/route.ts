@@ -64,7 +64,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ]
     };
   } catch (error) {
-    throw new Error(`Tool execution failed: ${error.message}`);
+    throw new Error(`Tool execution failed: ${(error as Error).message}`);
   }
 });
 
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
           id: body.id,
           error: {
             code: -32603,
-            message: `Tool execution failed: ${error.message}`
+            message: `Tool execution failed: ${(error as Error).message}`
           }
         });
       }

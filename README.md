@@ -40,7 +40,7 @@ LaunchPilot now features a comprehensive knowledge base powered by RAG technolog
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Node.js
 - Supabase account with pgvector extension
 - OpenAI API key
 

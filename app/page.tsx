@@ -152,7 +152,7 @@ function LaunchPilotContent() {
             </p>
             <button
               onClick={() => setShowSampleProjects(!showSampleProjects)}
-              className="inline-flex items-center px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-white text-blue-700 rounded-lg font-bold hover:bg-blue-50 hover:text-blue-800 transition-colors shadow-lg"
             >
               {showSampleProjects ? 'Hide' : 'Show'} Sample Projects
               <ArrowRight className="ml-2 h-5 w-5" />

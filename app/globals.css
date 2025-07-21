@@ -250,4 +250,29 @@ code {
   .text-3xl { font-size: 1.75rem; }
   .px-4 { padding-left: 1rem; padding-right: 1rem; }
   .py-16 { padding-top: 2rem; padding-bottom: 2rem; }
-} /* Force Vercel refresh */
+}
+
+/* Button Readability Improvements */
+button {
+  font-weight: 600 !important;
+}
+
+/* Ensure proper contrast for blue buttons */
+.bg-blue-600, .bg-blue-500, .bg-blue-700 {
+  color: white !important;
+}
+
+/* Improve text contrast on light backgrounds */
+.bg-white button, .bg-gray-50 button {
+  color: #1e40af !important;
+  font-weight: 700 !important;
+}
+
+/* Gradient buttons should always have white text */
+.bg-gradient-to-r button, 
+button.bg-gradient-to-r {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+/* Force Vercel refresh */

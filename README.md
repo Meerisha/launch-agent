@@ -2,6 +2,12 @@
 
 LaunchPilot is an advanced AI-powered business launch consultant that helps entrepreneurs analyze project ideas, create revenue projections, develop launch strategies, and generate comprehensive market intelligence. Enhanced with **Retrieval-Augmented Generation (RAG)** for expert knowledge and insights.
 
+## 🌐 Live Demo
+
+**Try it now:** [https://launch-pilot-ai.vercel.app/](https://launch-pilot-ai.vercel.app/)
+
+Experience the full power of LaunchPilot's AI-driven business consulting platform with real-time analysis, RAG-enhanced insights, and comprehensive project evaluation tools.
+
 ## 🧠 Enhanced AI with RAG
 
 LaunchPilot now features a comprehensive knowledge base powered by RAG technology:
@@ -371,6 +377,23 @@ npm run lint
 1. **Connect Repository**: Link your GitHub repository to Vercel
 2. **Environment Variables**: Add all required env vars in Vercel dashboard
 3. **Deploy**: Push to main branch for automatic deployment
+
+### Creating Shorter URLs
+
+Create custom aliases for cleaner deployment URLs:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login to Vercel
+npx vercel login
+
+# Create shorter alias
+npx vercel alias <your-long-deployment-url> <your-short-name>.vercel.app
+```
+
+**Live Demo:** [https://launch-pilot-ai.vercel.app/](https://launch-pilot-ai.vercel.app/)
 
 ### Manual Deployment
 

@@ -4,6 +4,7 @@ import { projectIntakeTool } from '../../../tools/project-intake';
 import { revenueCalculatorTool } from '../../../tools/revenue-calculator';
 import { launchStrategyTool } from '../../../tools/launch-strategy';
 import { competitiveIntelligence } from '../../../tools/competitive-intelligence';
+import { getRAGContext, logRAGQuery } from '../../../lib/rag';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -25,6 +26,7 @@ interface ProjectContext {
   launchGoal?: string;
   budget?: number;
   industry?: string;
+  category?: string;
   hasGeneratedAnalysis?: boolean;
 }
 
@@ -42,6 +44,12 @@ export async function POST(request: NextRequest) {
     // Extract project context from conversation
     const projectContext: ProjectContext = extractProjectContext(conversationHistory, context);
     
+    // Get RAG context for enhanced responses
+    const ragContext = await getRAGContext(message, {
+      industry: projectContext.industry,
+      category: projectContext.category || inferCategoryFromContext(projectContext)
+    });
+
     // Check if user wants Instagram images - prioritize this
     const wantsInstagramImages = shouldGenerateInstagramImages(message) || 
       isInstagramFollowUp(message, conversationHistory);
@@ -58,18 +66,21 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Create system prompt based on context
-    const systemPrompt = createSystemPrompt(projectContext, wantsAnalysis, wantsCompetitiveIntelligence);
+    // Create enhanced system prompt with RAG context
+    const systemPrompt = createSystemPrompt(projectContext, wantsAnalysis, wantsCompetitiveIntelligence, ragContext);
     
+    // Prepare messages with RAG context
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory.slice(-8), // Keep last 8 messages for context
+      { role: 'user', content: message }
+    ];
+
     // Get AI response
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory.slice(-8), // Keep last 8 messages for context
-        { role: 'user', content: message }
-      ],
-      max_tokens: 1000,
+      messages,
+      max_tokens: 1200,
       temperature: 0.7
     });
 
@@ -103,10 +114,29 @@ export async function POST(request: NextRequest) {
     // Update context with extracted information
     updatedContext = updateContextFromMessage(message, updatedContext);
 
+    // Log RAG query for analytics (implement user identification as needed)
+    if (ragContext.results.length > 0) {
+      await logRAGQuery(
+        null, // User ID - implement based on your auth system
+        message,
+        ragContext.results.map(r => r.document_id),
+        true
+      );
+    }
+
     return NextResponse.json({
       response: aiResponse,
       context: updatedContext,
       analysis: analysisResult,
+      ragContext: ragContext.results.length > 0 ? {
+        sources: ragContext.results.map(r => ({
+          title: r.title,
+          type: r.document_type,
+          category: r.category,
+          similarity: r.similarity
+        })),
+        sourceCount: ragContext.source_count
+      } : undefined,
       generatedAt: new Date().toISOString()
     });
 
@@ -117,6 +147,45 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function inferCategoryFromContext(context: ProjectContext): string {
+  if (context.industry) {
+    const industryMappings: Record<string, string> = {
+      'tech': 'saas',
+      'technology': 'saas',
+      'software': 'saas',
+      'saas': 'saas',
+      'ecommerce': 'ecommerce',
+      'retail': 'ecommerce',
+      'fashion': 'ecommerce',
+      'consulting': 'consulting',
+      'services': 'consulting',
+      'education': 'course',
+      'training': 'course',
+      'fintech': 'saas',
+      'healthtech': 'saas'
+    };
+    
+    return industryMappings[context.industry.toLowerCase()] || 'general';
+  }
+  
+  // Infer from project name or description
+  const projectText = (context.projectName || context.elevatorPitch || '').toLowerCase();
+  if (projectText.includes('app') || projectText.includes('platform') || projectText.includes('software')) {
+    return 'saas';
+  }
+  if (projectText.includes('course') || projectText.includes('training') || projectText.includes('education')) {
+    return 'course';
+  }
+  if (projectText.includes('store') || projectText.includes('shop') || projectText.includes('product')) {
+    return 'ecommerce';
+  }
+  if (projectText.includes('consulting') || projectText.includes('service')) {
+    return 'consulting';
+  }
+  
+  return 'general';
 }
 
 function extractProjectContext(history: ConversationMessage[], existingContext: any): ProjectContext {
@@ -210,7 +279,12 @@ function hasEnoughInfoForCompetitiveIntelligence(context: ProjectContext): boole
   return !!(context.projectName && context.industry);
 }
 
-function createSystemPrompt(context: ProjectContext, wantsAnalysis: boolean, wantsCompetitiveIntelligence: boolean = false): string {
+function createSystemPrompt(
+  context: ProjectContext, 
+  wantsAnalysis: boolean, 
+  wantsCompetitiveIntelligence: boolean = false,
+  ragContext: any
+): string {
   let prompt = `You are LaunchPilot AI, an expert business launch consultant. You help entrepreneurs analyze their project ideas, create revenue projections, and develop launch strategies.
 
 Key traits:
@@ -233,6 +307,14 @@ Current conversation context:`;
   }
   if (context.industry) {
     prompt += `\n- Industry: ${context.industry}`;
+  }
+
+  // Add RAG context if available
+  if (ragContext && ragContext.source_count > 0) {
+    prompt += `\n\nRelevant Knowledge Base Context:
+${ragContext.context_summary}
+
+Use this knowledge base information to provide more informed and specific advice. Reference specific frameworks, best practices, or insights from the knowledge base when relevant. Always prioritize actionable advice based on proven strategies.`;
   }
 
   if (wantsCompetitiveIntelligence && hasEnoughInfoForCompetitiveIntelligence(context)) {

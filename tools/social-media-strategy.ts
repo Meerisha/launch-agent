@@ -52,7 +52,7 @@ function getPlatformStrategy(platform: string, audience: string) {
     youtube: `Long-form educational content. Tutorials, case studies, and in-depth product demonstrations.`,
     facebook: `Community building with groups and events. Share valuable content and foster discussions.`
   };
-  return strategies[platform] || "Platform-specific strategy to be developed";
+  return strategies[platform as keyof typeof strategies] || "Platform-specific strategy to be developed";
 }
 
 function getContentMix(platform: string, contentTypes: string[]) {
@@ -71,7 +71,7 @@ function getContentExamples(type: string, platform: string) {
     promotional: ["Product announcements", "Special offers", "Feature highlights"],
     entertainment: ["Memes", "Fun facts", "Interactive polls"]
   };
-  return examples[type] || ["Content examples to be developed"];
+  return examples[type as keyof typeof examples] || ["Content examples to be developed"];
 }
 
 function getPostingFrequency(platform: string) {
@@ -83,7 +83,7 @@ function getPostingFrequency(platform: string) {
     youtube: "2-3 videos per week",
     facebook: "1 post per day"
   };
-  return frequencies[platform] || "Daily posting recommended";
+  return frequencies[platform as keyof typeof frequencies] || "Daily posting recommended";
 }
 
 function getBestPostingTimes(platform: string) {
@@ -95,7 +95,7 @@ function getBestPostingTimes(platform: string) {
     youtube: "2 PM - 4 PM and 8 PM - 11 PM",
     facebook: "1 PM - 3 PM and 7 PM - 9 PM"
   };
-  return times[platform] || "Peak audience hours vary by platform";
+  return times[platform as keyof typeof times] || "Peak audience hours vary by platform";
 }
 
 function getCrossPlatformApproach(platforms: string[]) {
@@ -181,7 +181,7 @@ function generateHashtags(platform: string) {
     youtube: ["startup", "business", "entrepreneurship"],
     facebook: ["#SmallBusiness", "#Entrepreneur", "#Innovation"]
   };
-  return platformHashtags[platform] || ["#business", "#startup"];
+  return platformHashtags[platform as keyof typeof platformHashtags] || ["#business", "#startup"];
 }
 
 function generateSocialMetrics(input: z.infer<typeof SocialMediaStrategySchema>) {

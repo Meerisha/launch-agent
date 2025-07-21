@@ -16,10 +16,11 @@ LaunchPilot now features a comprehensive knowledge base powered by RAG technolog
 ### Core Capabilities
 - **AI Chat Interface**: Interactive consultant powered by GPT-4 with RAG enhancement
 - **Project Analysis**: Comprehensive project evaluation and recommendations
-- **Revenue Calculator**: Financial projections and scenario modeling
+- **Revenue Calculator**: Advanced financial projections and scenario modeling
 - **Launch Strategy**: Tactical launch plans with timeline and budget allocation
 - **Competitive Intelligence**: Market research and competitor analysis
-- **Social Media Generator**: AI-generated Instagram content and strategy
+- **Instagram Generator**: AI-generated Instagram content and strategy
+- **Metrics Dashboard**: Real-time business metrics and performance tracking
 
 ### RAG Knowledge Base
 - **Launch Strategies**: SaaS, e-commerce, consulting, and more
@@ -29,17 +30,18 @@ LaunchPilot now features a comprehensive knowledge base powered by RAG technolog
 - **Case Studies**: Real-world examples and lessons learned
 
 ### Advanced Tools
-- **MCP Integration**: Model Context Protocol for external data
+- **MCP Integration**: Model Context Protocol for external data and analysis
 - **Real-time Research**: Web scraping and market intelligence
-- **Document Export**: PDF and PowerPoint report generation
-- **Sample Projects**: Pre-built analysis examples
-- **Analytics Dashboard**: Performance metrics and insights
+- **Document Export**: Professional PDF and PowerPoint report generation
+- **Sample Projects**: Pre-built analysis examples for learning
+- **Analytics Dashboard**: Performance metrics and business insights
+- **Project Management**: Save, track, and manage multiple projects
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- Supabase account
+- Supabase account with pgvector extension
 - OpenAI API key
 
 ### Installation
@@ -74,6 +76,11 @@ OPENAI_API_KEY=your_openai_api_key
 # Supabase Configuration  
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Authentication
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
 
 # External APIs (Optional)
 FIRECRAWL_API_KEY=your_firecrawl_key
@@ -81,10 +88,6 @@ TAVILY_API_KEY=your_tavily_key
 
 # Redis (Optional - for caching)
 REDIS_URL=your_redis_url
-
-# NextAuth
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
 ```
 
 ## 🧠 RAG System
@@ -140,6 +143,8 @@ POST /api/rag
 - `GET /api/rag` - Knowledge base operations
 - `POST /api/competitive-intelligence` - Market research
 - `POST /api/financial` - Revenue calculations
+- `POST /api/projects` - Project management
+- `POST /api/export` - Report generation
 
 ### RAG Endpoints
 - `GET /api/rag?action=search` - Search knowledge base
@@ -149,24 +154,142 @@ POST /api/rag
 
 ## 🛠 Development
 
-### Project Structure
+### Organized Project Structure
 
 ```
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   │   ├── chat/          # Enhanced chat with RAG
-│   │   ├── rag/           # RAG operations
+launch-planner-mcp/
+├── app/                           # Next.js app directory
+│   ├── components/                # React components (organized by functionality)
+│   │   ├── auth/                 # Authentication components
+│   │   │   ├── AuthButton.tsx
+│   │   │   └── index.ts
+│   │   ├── ui/                   # Reusable UI components
+│   │   │   ├── ShareButtons.tsx
+│   │   │   └── index.ts
+│   │   ├── features/             # Main feature components
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── EnhancedFinancialCalculator.tsx
+│   │   │   ├── InstagramImageGenerator.tsx
+│   │   │   ├── MetricsDashboard.tsx
+│   │   │   ├── ReportGenerator.tsx
+│   │   │   └── index.ts
+│   │   ├── project/              # Project management components
+│   │   │   ├── ProjectHistory.tsx
+│   │   │   ├── SampleProjectSelector.tsx
+│   │   │   ├── SaveProjectButton.tsx
+│   │   │   └── index.ts
+│   │   └── index.ts              # Main component exports
+│   ├── api/                      # API routes
+│   │   ├── chat/                # Enhanced chat with RAG
+│   │   ├── rag/                 # RAG operations
+│   │   ├── auth/                # Authentication endpoints
+│   │   ├── projects/            # Project management
 │   │   └── ...
-│   ├── components/        # React components
+│   ├── auth/                    # Authentication pages
+│   ├── dashboard/               # Dashboard page
 │   └── ...
-├── lib/                   # Core libraries
-│   ├── rag.ts            # RAG system implementation
-│   ├── knowledge-seeder.ts # Knowledge base seeding
-│   ├── supabase.ts       # Database client
+├── lib/                         # Core libraries
+│   ├── auth.ts                  # Authentication configuration
+│   ├── rag.ts                   # RAG system implementation
+│   ├── knowledge-seeder.ts      # Knowledge base seeding
+│   ├── supabase.ts             # Database client
+│   ├── database.sql            # Database schema
+│   ├── report-generator.ts     # Report generation logic
 │   └── ...
-├── tools/                 # Analysis tools
-├── scripts/              # Setup and utility scripts
-└── docs/                 # Documentation
+├── tools/                       # MCP tools (organized by category)
+│   ├── analysis/               # Competitive & market analysis
+│   │   ├── competitive-intelligence.ts
+│   │   └── index.ts
+│   ├── financial/              # Financial calculations & projections
+│   │   ├── revenue-calculator.ts
+│   │   └── index.ts
+│   ├── marketing/              # Marketing & social media tools
+│   │   ├── social-media-strategy.ts
+│   │   ├── instagram-image-generator.ts
+│   │   └── index.ts
+│   ├── strategy/               # Business strategy & planning
+│   │   ├── project-intake.ts
+│   │   ├── launch-strategy.ts
+│   │   └── index.ts
+│   └── index.ts                # Main tool exports
+├── docs/                       # Documentation (organized by topic)
+│   ├── setup/                  # Setup & deployment guides
+│   │   ├── AUTH_SETUP.md
+│   │   ├── RAG_SETUP.md
+│   │   ├── VERCEL_DEPLOYMENT.md
+│   │   └── ...
+│   ├── features/               # Feature documentation
+│   │   ├── README_CHAT.md
+│   │   ├── README_REPORTS.md
+│   │   └── README_SAMPLES.md
+│   ├── development/            # Development guides
+│   │   ├── AUTHENTICATION_IMPLEMENTATION.md
+│   │   ├── MISSING_FEATURES.md
+│   │   └── ...
+│   └── README.md               # Main documentation
+├── scripts/                    # Setup and utility scripts
+├── types/                      # TypeScript type definitions
+└── [config files]             # Package.json, tsconfig, etc.
+```
+
+### Import Patterns
+
+The organized structure supports multiple clean import patterns:
+
+#### Components
+```typescript
+// Option 1: Direct import
+import ChatInterface from '@/app/components/features/ChatInterface'
+
+// Option 2: Category import
+import { ChatInterface } from '@/app/components/features'
+
+// Option 3: Main index import
+import { ChatInterface } from '@/app/components'
+```
+
+#### Tools
+```typescript
+// Option 1: Direct import
+import { revenueCalculatorTool } from '@/tools/financial/revenue-calculator'
+
+// Option 2: Category import  
+import { revenueCalculatorTool } from '@/tools/financial'
+
+// Option 3: Main index import
+import { revenueCalculatorTool } from '@/tools'
+```
+
+### Development Benefits
+
+- **Better Maintainability**: Related files are grouped together
+- **Easy Navigation**: Logical file organization makes finding code simple
+- **Clear Separation**: Components, tools, and docs are properly categorized
+- **Scalable Architecture**: Easy to add new features to appropriate categories
+- **Self-Documenting**: Structure clearly shows what each part does
+
+### Adding New Features
+
+#### New Component
+```bash
+# Add to appropriate category
+app/components/features/NewFeature.tsx
+# Export in category index
+app/components/features/index.ts
+```
+
+#### New Tool
+```bash
+# Add to appropriate category
+tools/analysis/new-analysis-tool.ts
+# Export in category index
+tools/analysis/index.ts
+```
+
+#### New Documentation
+```bash
+# Add to appropriate topic
+docs/features/NEW_FEATURE.md
 ```
 
 ### Adding New Knowledge
@@ -198,6 +321,7 @@ The system tracks:
 - RAG query patterns and popular searches
 - Knowledge retrieval effectiveness
 - User interaction analytics
+- Project creation and completion rates
 - System performance metrics
 
 ## 🔧 Configuration
@@ -219,20 +343,62 @@ The system tracks:
 
 ## 📚 Documentation
 
-- [RAG Implementation Guide](docs/RAG_IMPLEMENTATION.md)
-- [Knowledge Management](docs/KNOWLEDGE_MANAGEMENT.md)
-- [API Documentation](docs/API_REFERENCE.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
+- **Setup Guides**: [docs/setup/](docs/setup/) - Authentication, RAG, Deployment
+- **Feature Docs**: [docs/features/](docs/features/) - Chat, Reports, Samples
+- **Development**: [docs/development/](docs/development/) - Project structure, Implementation guides
+- **Project Structure**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Detailed organization guide
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Test build
+npm run build
+
+# Check types
+npm run type-check
+
+# Lint code
+npm run lint
+```
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. **Connect Repository**: Link your GitHub repository to Vercel
+2. **Environment Variables**: Add all required env vars in Vercel dashboard
+3. **Deploy**: Push to main branch for automatic deployment
+
+### Manual Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Add knowledge documents for new domains
-4. Test RAG integration thoroughly  
-5. Commit changes (`git commit -m 'Add amazing feature'`)
-6. Push to branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+3. Follow the organized structure for new components/tools
+4. Add knowledge documents for new domains
+5. Test RAG integration thoroughly  
+6. Commit changes (`git commit -m 'Add amazing feature'`)
+7. Push to branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Code Organization Guidelines
+
+- Place components in appropriate categories (`auth/`, `ui/`, `features/`, `project/`)
+- Add tools to relevant business categories (`analysis/`, `financial/`, `marketing/`, `strategy/`)
+- Update index files for clean imports
+- Document new features in appropriate docs categories
 
 ## 📄 License
 
@@ -243,7 +409,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📧 Email: support@launchpilot.ai
 - 📖 Documentation: [docs/](docs/)
 - 🐛 Issues: [GitHub Issues](issues/)
+- 📋 Project Structure: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 
 ---
 
-Built with ❤️ by the LaunchPilot team. Powered by OpenAI, Supabase, and Next.js. 
+Built with ❤️ by the LaunchPilot team. Powered by OpenAI, Supabase, and Next.js with organized, maintainable architecture. 

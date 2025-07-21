@@ -234,7 +234,7 @@ export default function EnhancedFinancialCalculator() {
         <div className="flex gap-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white hover:bg-gray-700 rounded-lg transition-colors"
           >
             <Settings className="w-4 h-4" />
             {showAdvanced ? 'Hide' : 'Show'} Advanced

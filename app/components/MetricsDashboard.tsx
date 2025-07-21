@@ -382,10 +382,10 @@ export default function MetricsDashboard() {
                   customerAcquisitionRate: prev.customerAcquisitionRate * 0.9
                 }))
               }}
-              className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-full text-left p-3 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
             >
-              <p className="font-medium text-gray-900">Premium Pricing Strategy</p>
-              <p className="text-sm text-gray-600">+20% price, -10% acquisition</p>
+              <p className="font-medium text-white">Premium Pricing Strategy</p>
+              <p className="text-sm text-blue-100">+20% price, -10% acquisition</p>
             </button>
 
             <button
@@ -396,10 +396,10 @@ export default function MetricsDashboard() {
                   burnRate: prev.burnRate * 1.3
                 }))
               }}
-              className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-full text-left p-3 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
             >
-              <p className="font-medium text-gray-900">Growth Mode</p>
-              <p className="text-sm text-gray-600">+50% acquisition, +30% burn</p>
+              <p className="font-medium text-white">Growth Mode</p>
+              <p className="text-sm text-green-100">+50% acquisition, +30% burn</p>
             </button>
 
             <button
@@ -410,10 +410,10 @@ export default function MetricsDashboard() {
                   customerAcquisitionRate: prev.customerAcquisitionRate * 0.8
                 }))
               }}
-              className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-full text-left p-3 bg-purple-600 text-white hover:bg-purple-700 rounded-lg transition-colors"
             >
-              <p className="font-medium text-gray-900">Conservative Mode</p>
-              <p className="text-sm text-gray-600">-30% burn, -20% acquisition</p>
+              <p className="font-medium text-white">Conservative Mode</p>
+              <p className="text-sm text-purple-100">-30% burn, -20% acquisition</p>
             </button>
           </div>
         </div>

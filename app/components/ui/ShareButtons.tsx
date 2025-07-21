@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Download, Share2, FileText, Presentation, Palette, Settings, X } from 'lucide-react';
-import ReportGenerator from './ReportGenerator';
+import ReportGenerator from '../features/ReportGenerator';
 
 interface ShareButtonsProps {
   projectName: string;

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getCachedData, setCachedData } from '../lib/redis'
+import { getCachedData, setCachedData } from '../../lib/redis'
 
 // Input validation schema
 const CompetitiveIntelligenceSchema = z.object({

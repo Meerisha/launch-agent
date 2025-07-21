@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { competitiveIntelligence } from '../../../tools/competitive-intelligence'
+import { competitiveIntelligence } from '../../../tools'
 import { z } from 'zod'
 
 // Input validation schema

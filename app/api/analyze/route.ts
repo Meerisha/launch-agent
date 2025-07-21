@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { projectIntakeTool } from '../../../tools/project-intake';
-import { revenueCalculatorTool } from '../../../tools/revenue-calculator';
-import { launchStrategyTool } from '../../../tools/launch-strategy';
+import { projectIntakeTool, revenueCalculatorTool, launchStrategyTool } from '../../../tools';
 
 export async function POST(request: NextRequest) {
   try {

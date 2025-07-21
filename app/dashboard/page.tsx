@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { User, LogOut, Settings, Home } from 'lucide-react'
-import ProjectHistory from '@/app/components/ProjectHistory'
+import ProjectHistory from '@/app/components/project/ProjectHistory'
 import Link from 'next/link'
 
 export default function DashboardPage() {

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { projectIntakeTool } from '../../../tools/project-intake';
-import { revenueCalculatorTool } from '../../../tools/revenue-calculator';
-import { launchStrategyTool } from '../../../tools/launch-strategy';
-import { competitiveIntelligence } from '../../../tools/competitive-intelligence';
+import { projectIntakeTool, revenueCalculatorTool, launchStrategyTool, competitiveIntelligence } from '../../../tools';
 import { getRAGContext, logRAGQuery } from '../../../lib/rag';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -508,7 +505,7 @@ async function handleInstagramImageGeneration(
     };
     
     // Call the Instagram image generation tool directly
-    const { instagramImageGeneratorTool } = await import('../../../tools/instagram-image-generator');
+    const { instagramImageGeneratorTool } = await import('../../../tools');
     const result = await instagramImageGeneratorTool.handler(instagramParams);
     
     return {

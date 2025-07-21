@@ -1,0 +1,1 @@
+export { competitiveIntelligence } from './competitive-intelligence'; 

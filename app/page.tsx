@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState } from 'react'
-import ShareButtons from './components/ShareButtons'
-import ChatInterface from './components/ChatInterface'
-import SampleProjectSelector from './components/SampleProjectSelector'
-import AuthButton from './components/AuthButton'
-import SaveProjectButton from './components/SaveProjectButton'
+import ShareButtons from './components/ui/ShareButtons'
+import ChatInterface from './components/features/ChatInterface'
+import SampleProjectSelector from './components/project/SampleProjectSelector'
+import AuthButton from './components/auth/AuthButton'
+import SaveProjectButton from './components/project/SaveProjectButton'
 import Providers from './providers'
 import { MessageCircle, FileText, ArrowRight } from 'lucide-react'
 

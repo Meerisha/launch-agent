@@ -203,6 +203,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
         <button
           onClick={() => setInputValue("I want to launch a SaaS product")}
           className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+          style={{ color: '#ffffff', fontWeight: '600' }}
         >
           <span>🎯</span>
           SaaS Launch
@@ -210,6 +211,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
         <button
           onClick={() => setInputValue("Help me calculate revenue projections")}
           className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+          style={{ color: '#ffffff', fontWeight: '600' }}
         >
           <span>💰</span>
           Revenue Projections
@@ -217,6 +219,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
         <button
           onClick={() => setInputValue("I need market research for my idea")}
           className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+          style={{ color: '#ffffff', fontWeight: '600' }}
         >
           <span>📊</span>
           Market Research
@@ -224,6 +227,7 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
         <button
           onClick={() => setInputValue("Generate Instagram images for my product launch")}
           className="flex items-center gap-2 px-3 py-2 bg-pink-600 text-white rounded-lg text-sm hover:bg-pink-700 transition-colors"
+          style={{ color: '#ffffff', fontWeight: '600' }}
         >
           <span>🎨</span>
           Instagram Images

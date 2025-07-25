@@ -184,54 +184,59 @@ export default function ChatInterface({ onAnalysisGenerated }: ChatInterfaceProp
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+    <div className="w-full max-w-5xl mx-auto card-glass hover-lift animate-fade-in">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-white/20 p-2 rounded-full">
-            <Sparkles className="w-6 h-6" />
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-2xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-full animate-pulse-gentle">
+              <Sparkles className="w-7 h-7" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">LaunchPilot AI Assistant</h2>
+              <p className="text-blue-100 text-base">Interactive Project Guidance & Analysis</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold">LaunchPilot AI Assistant</h2>
-            <p className="text-blue-100 text-sm">Interactive Project Guidance & Analysis</p>
+          <div className="hidden md:flex items-center space-x-2">
+            <div className="status-dot status-online"></div>
+            <span className="text-blue-100 text-sm">Online</span>
           </div>
         </div>
       </div>
 
       {/* Quick Action Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <button
-          onClick={() => setInputValue("I want to launch a SaaS product")}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-          style={{ color: '#ffffff', fontWeight: '600' }}
-        >
-          <span>🎯</span>
-          SaaS Launch
-        </button>
-        <button
-          onClick={() => setInputValue("Help me calculate revenue projections")}
-          className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-          style={{ color: '#ffffff', fontWeight: '600' }}
-        >
-          <span>💰</span>
-          Revenue Projections
-        </button>
-        <button
-          onClick={() => setInputValue("I need market research for my idea")}
-          className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
-          style={{ color: '#ffffff', fontWeight: '600' }}
-        >
-          <span>📊</span>
-          Market Research
-        </button>
-        <button
-          onClick={() => setInputValue("Generate Instagram images for my product launch")}
-          className="flex items-center gap-2 px-3 py-2 bg-pink-600 text-white rounded-lg text-sm hover:bg-pink-700 transition-colors"
-          style={{ color: '#ffffff', fontWeight: '600' }}
-        >
-          <span>🎨</span>
-          Instagram Images
-        </button>
+      <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-100">
+        <p className="text-sm font-medium text-gray-700 mb-4">Quick Actions - Get started instantly:</p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setInputValue("I want to launch a SaaS product")}
+            className="inline-flex items-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <span className="mr-2">🎯</span>
+            SaaS Launch
+          </button>
+          <button
+            onClick={() => setInputValue("Help me calculate revenue projections")}
+            className="inline-flex items-center px-4 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <span className="mr-2">💰</span>
+            Revenue Projections
+          </button>
+          <button
+            onClick={() => setInputValue("I need market research for my idea")}
+            className="inline-flex items-center px-4 py-3 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <span className="mr-2">📊</span>
+            Market Research
+          </button>
+          <button
+            onClick={() => setInputValue("Generate Instagram images for my product launch")}
+            className="inline-flex items-center px-4 py-3 bg-pink-600 text-white font-semibold rounded-xl hover:bg-pink-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            <span className="mr-2">🎨</span>
+            Instagram Images
+          </button>
+        </div>
       </div>
 
       {/* Messages */}

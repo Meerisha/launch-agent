@@ -2,31 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Custom Properties */
+/* Modern CSS Custom Properties */
 :root {
+  /* Colors - Modern Palette */
   --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(222.2 84% 4.9%);
+  --background-secondary: hsl(240 10% 98%);
+  --foreground: hsl(240 10% 9%);
+  --foreground-muted: hsl(240 5% 65%);
+  --border: hsl(240 10% 91%);
+  --border-muted: hsl(240 10% 95%);
+  --input: hsl(240 10% 97%);
+  --ring: hsl(240 100% 67%);
+  --primary: hsl(240 100% 67%);
+  --primary-dark: hsl(240 100% 60%);
+  --secondary: hsl(260 100% 70%);
+  --accent: hsl(280 100% 70%);
+  --success: hsl(142 76% 36%);
+  --warning: hsl(38 92% 50%);
+  --error: hsl(0 84% 60%);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(240 100% 67%) 0%, hsl(260 100% 70%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(260 100% 70%) 0%, hsl(280 100% 70%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(240 100% 67%) 0%, hsl(280 100% 70%) 100%);
+  
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
   --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  
+  /* Glass morphism */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: hsl(240 10% 4%);
+    --background-secondary: hsl(240 10% 6%);
+    --foreground: hsl(0 0% 98%);
+    --foreground-muted: hsl(240 5% 65%);
+    --border: hsl(240 10% 20%);
+    --border-muted: hsl(240 10% 15%);
+    --input: hsl(240 10% 12%);
+    --glass-bg: rgba(16, 16, 16, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* Modern CSS Reset and Base Styles */
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  line-height: 1.6;
-  color: #334155;
-  background-color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.7;
+  color: var(--foreground);
+  background: var(--background);
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 154, 158, 0.1) 0%, transparent 50%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
+
+/* Modern Typography Scale */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+}
+
+h1 { font-size: 2.5rem; font-weight: 700; }
+h2 { font-size: 2rem; font-weight: 600; }
+h3 { font-size: 1.5rem; font-weight: 600; }
+h4 { font-size: 1.25rem; font-weight: 600; }
+h5 { font-size: 1.125rem; font-weight: 500; }
+h6 { font-size: 1rem; font-weight: 500; }
 
 /* Container and Layout */
 .container {
@@ -48,258 +134,371 @@ body {
 .flex { display: flex; }
 .items-center { align-items: center; }
 .items-start { align-items: flex-start; }
-.justify-between { justify-content: space-between; }
 .justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
 
-/* Grid Utilities */
-.grid { display: grid; }
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.gap-6 { gap: 1.5rem; }
-.gap-8 { gap: 2rem; }
-
-/* Responsive Grid */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .md\:flex { display: flex; }
-}
-
-/* Background and Gradients */
-.bg-gradient-to-br {
-  background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
-}
-.bg-white { background-color: white; }
-.bg-slate-900 { background-color: #0f172a; }
-.bg-blue-100 { background-color: #dbeafe; }
-.bg-green-100 { background-color: #dcfce7; }
-.bg-purple-100 { background-color: #f3e8ff; }
-.bg-slate-800 { background-color: #1e293b; }
-
-/* Gradient Backgrounds */
-.bg-gradient-to-r {
-  background: linear-gradient(to right, #2563eb, #7c3aed);
-}
-
-/* Text Colors */
-.text-white { color: white; }
-.text-slate-900 { color: #0f172a; }
-.text-slate-700 { color: #334155; }
-.text-slate-600 { color: #475569; }
-.text-slate-500 { color: #64748b; }
-.text-slate-400 { color: #94a3b8; }
-
-/* Typography */
-.text-5xl { font-size: 3rem; line-height: 1; }
-.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-.text-2xl { font-size: 1.5rem; line-height: 2rem; }
-.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-
-.font-bold { font-weight: 700; }
-.font-semibold { font-weight: 600; }
-.font-medium { font-weight: 500; }
-
-.leading-tight { line-height: 1.25; }
-.leading-relaxed { line-height: 1.625; }
-
-/* Spacing */
-.min-h-screen { min-height: 100vh; }
-.max-w-4xl { max-width: 56rem; }
-.max-w-2xl { max-width: 42rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
+/* Typography Utilities */
 .text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
 
-.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
-.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.px-12 { padding-left: 3rem; padding-right: 3rem; }
-.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-.p-6 { padding: 1.5rem; }
-.p-8 { padding: 2rem; }
+/* Background and Color Utilities */
+.bg-primary { background-color: var(--primary); }
+.bg-secondary { background-color: var(--secondary); }
+.text-primary { color: var(--primary); }
+.text-muted { color: var(--foreground-muted); }
 
-.mb-16 { margin-bottom: 4rem; }
-.mb-12 { margin-bottom: 3rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.pt-6 { padding-top: 1.5rem; }
-
-/* Borders and Shadows */
-.border { border: 1px solid #e2e8f0; }
-.border-b { border-bottom: 1px solid #e2e8f0; }
-.border-slate-200 { border-color: #e2e8f0; }
-.border-slate-300 { border-color: #cbd5e1; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-.rounded-full { border-radius: 9999px; }
-
-.shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-.shadow-xl { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-
-/* Sizing */
-.w-full { width: 100%; }
-.w-10 { width: 2.5rem; }
-.w-12 { width: 3rem; }
-.w-8 { width: 2rem; }
-.w-2 { width: 0.5rem; }
-.h-10 { height: 2.5rem; }
-.h-12 { height: 3rem; }
-.h-8 { height: 2rem; }
-.h-2 { height: 0.5rem; }
-
-/* Positioning and Display */
-.hidden { display: none; }
-.block { display: block; }
-.relative { position: relative; }
-.absolute { position: absolute; }
-
-/* Backdrop Blur */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-/* Transforms and Transitions */
-.transition-shadow { transition: box-shadow 0.15s ease-in-out; }
-.transition-all { transition: all 0.15s ease-in-out; }
-.duration-200 { transition-duration: 200ms; }
-.transform { transform: translateZ(0); }
-
-.hover\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-.hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-.hover\:-translate-y-0\.5:hover { transform: translateY(-0.125rem); }
-
-/* Form Elements */
-input, textarea, select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  transition: all 0.15s ease-in-out;
-  outline: none;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
-}
-
-textarea {
-  resize: none;
-}
-
-label {
-  display: block;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-/* Buttons */
-button {
-  background: linear-gradient(to right, #2563eb, #7c3aed);
-  color: white;
-  font-weight: 600;
-  padding: 1rem 3rem;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  transition: all 0.2s ease-in-out;
-  transform: translateY(0);
-}
-
-button:hover {
-  background: linear-gradient(to right, #1d4ed8, #6d28d9);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  transform: translateY(-0.125rem);
-}
-
-/* Code styling */
-code {
-  background-color: #1e293b;
-  color: #e2e8f0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.875rem;
-}
-
-/* Gradient Text */
-.bg-gradient-to-r.from-blue-600.to-violet-600 {
-  background: linear-gradient(to right, #2563eb, #7c3aed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .hidden.md\:flex { display: none; }
-  .text-5xl { font-size: 2.5rem; }
-  .text-3xl { font-size: 1.75rem; }
-  .px-4 { padding-left: 1rem; padding-right: 1rem; }
-  .py-16 { padding-top: 2rem; padding-bottom: 2rem; }
-}
-
-/* Button Readability Improvements - High Specificity */
+/* Modern Button System */
 button, 
 .btn, 
 input[type="button"], 
 input[type="submit"] {
-  font-weight: 600 !important;
-  border: none !important;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  outline: none;
+  overflow: hidden;
 }
 
-/* Force white text on colored backgrounds */
-button.bg-blue-600, 
-button.bg-blue-500, 
-button.bg-blue-700,
+/* Button States */
+button:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(0);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Button Variants */
+.btn-primary,
+button.bg-blue-600,
+button.bg-blue-500,
+button.bg-blue-700 {
+  background: var(--gradient-primary);
+  color: white !important;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover,
+button.bg-blue-600:hover,
+button.bg-blue-500:hover,
+button.bg-blue-700:hover {
+  box-shadow: var(--shadow-xl);
+  background: linear-gradient(135deg, hsl(240 100% 60%) 0%, hsl(260 100% 65%) 100%);
+  color: white !important;
+}
+
+/* Ensure all colored buttons have proper contrast */
+button.bg-green-600,
+button.bg-green-700 {
+  background-color: #059669 !important;
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+button.bg-purple-600,
+button.bg-purple-700 {
+  background-color: #7c3aed !important;
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+button.bg-pink-600,
+button.bg-pink-700 {
+  background-color: #db2777 !important;
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary,
+button.bg-gray-600,
+button.bg-gray-500 {
+  background: white;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover,
+button.bg-gray-600:hover,
+button.bg-gray-500:hover {
+  background: var(--background-secondary);
+  border-color: var(--ring);
+}
+
+/* Colored buttons */
 button.bg-green-600,
 button.bg-purple-600,
-button.bg-pink-600,
+button.bg-pink-600 {
+  background: var(--gradient-secondary);
+  color: white;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Button Sizes */
+.btn-sm { padding: 0.5rem 1rem; font-size: 0.75rem; }
+.btn-lg { padding: 1rem 2rem; font-size: 1rem; }
+.btn-xl { padding: 1.25rem 2.5rem; font-size: 1.125rem; }
+
+/* Force white text on colored backgrounds - Legacy Support */
 .bg-blue-600 button,
-.bg-blue-500 button,
-.bg-blue-700 button,
 .bg-green-600 button,
 .bg-purple-600 button,
 .bg-pink-600 button {
   color: white !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
 }
 
-/* White background buttons need dark text */
-button.bg-white,
-.bg-white button {
-  color: #1e40af !important;
-  font-weight: 700 !important;
-  text-shadow: none !important;
-  border: 1px solid #e2e8f0 !important;
+/* White background buttons */
+.bg-white button,
+button.bg-white {
+  background: white !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
-/* Specific fix for sample projects button */
-.bg-gradient-to-r button.bg-white {
-  color: #1e40af !important;
-  background-color: white !important;
-  font-weight: 700 !important;
-  text-shadow: none !important;
+/* Modern Card System */
+.card {
+  background: white;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Quick action buttons inside chat interface */
-.flex.flex-wrap.gap-2 button {
-  color: white !important;
-  font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--border);
+}
+
+.card-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--glass-shadow);
+  padding: var(--space-6);
+}
+
+/* Modern Form Controls */
+input, textarea, select {
+  appearance: none;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  background: white;
+}
+
+input:hover:not(:focus),
+textarea:hover:not(:focus),
+select:hover:not(:focus) {
+  border-color: var(--border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--foreground-muted);
+}
+
+/* Modern Labels */
+label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Modern Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+.animate-pulse-gentle {
+  animation: pulse 2s infinite;
+}
+
+/* Loading Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+/* Modern Gradients */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.gradient-border {
+  position: relative;
+  background: white;
+  border-radius: var(--radius-lg);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: var(--gradient-primary);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+}
+
+/* Modern Status Indicators */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-online { background: var(--success); }
+.status-warning { background: var(--warning); }
+.status-error { background: var(--error); }
+.status-offline { background: var(--foreground-muted); }
+
+/* Modern Hover Effects */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
+}
+
+/* Modern Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-muted);
+}
+
+/* Modern Focus States */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+  }
+  
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
+  
+  button, .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
 }
 
 /* Force Vercel refresh */

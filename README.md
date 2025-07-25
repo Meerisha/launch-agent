@@ -4,7 +4,7 @@ LaunchPilot is an advanced AI-powered business launch consultant that helps entr
 
 ## 🌐 Live Demo
 
-**Try it now:** [https://launch-pilot-ai.vercel.app/](https://launch-pilot-ai.vercel.app/)
+**Try it now:** [https://launch-agent-samakova.vercel.app/](https://launch-agent-samakova.vercel.app/)
 
 Experience the full power of LaunchPilot's AI-driven business consulting platform with real-time analysis, RAG-enhanced insights, and comprehensive project evaluation tools.
 
@@ -393,7 +393,7 @@ npx vercel login
 npx vercel alias <your-long-deployment-url> <your-short-name>.vercel.app
 ```
 
-**Live Demo:** [https://launch-pilot-ai.vercel.app/](https://launch-pilot-ai.vercel.app/)
+**Live Demo:** [https://launch-agent-samakova.vercel.app/](https://launch-agent-samakova.vercel.app/)
 
 ### Manual Deployment
 

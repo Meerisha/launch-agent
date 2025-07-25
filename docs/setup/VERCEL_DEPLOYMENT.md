@@ -22,7 +22,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### 2. Authentication (Required for Auth)
 ```env
 NEXTAUTH_SECRET=your_random_secret_string
-NEXTAUTH_URL=https://your-vercel-app.vercel.app
+NEXTAUTH_URL=https://launch-agent-samakova.vercel.app
 ```
 
 ### 3. OAuth Providers (Optional)
@@ -48,7 +48,7 @@ UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
 
 ### 6. App Configuration
 ```env
-NEXT_PUBLIC_BASE_URL=https://your-vercel-app.vercel.app
+NEXT_PUBLIC_BASE_URL=https://launch-agent-samakova.vercel.app
 ```
 
 ## 🚀 Deployment Steps
@@ -71,8 +71,8 @@ NEXT_PUBLIC_BASE_URL=https://your-vercel-app.vercel.app
 
 1. In Supabase, go to Authentication → Settings
 2. Add your Vercel domain to Site URL and Redirect URLs:
-   - Site URL: `https://your-vercel-app.vercel.app`
-   - Redirect URLs: `https://your-vercel-app.vercel.app/api/auth/callback/google`
+   - Site URL: `https://launch-agent-samakova.vercel.app`
+   - Redirect URLs: `https://launch-agent-samakova.vercel.app/api/auth/callback/google`
 
 ### Step 4: Deploy
 
@@ -115,7 +115,7 @@ For a basic deployment, you need at minimum:
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 NEXTAUTH_SECRET=your_secret
-NEXTAUTH_URL=https://your-app.vercel.app
+NEXTAUTH_URL=https://launch-agent-samakova.vercel.app
 OPENAI_API_KEY=your_openai_key
 ```
 

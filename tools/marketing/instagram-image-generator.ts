@@ -75,8 +75,14 @@ async function generateInstagramImages(input: z.infer<typeof InstagramImageSchem
       }
     } catch (error) {
       console.error('Error generating image:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       images.push({
         error: `Failed to generate image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        errorDetails: error instanceof Error ? {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        } : error,
         prompt: prompt
       });
     }
